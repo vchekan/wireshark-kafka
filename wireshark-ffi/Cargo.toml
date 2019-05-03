@@ -1,0 +1,9 @@
+[package]
+name = "wireshark_ffi"
+version = "0.1.0"
+authors = ["Vadim Chekan <kot.begemot@gmail.com>"]
+edition = "2018"
+description = "Wireshark ffi. Is used by `wireshark-kafka` project."
+
+[build-dependencies]
+bindgen = "0.48.0"
