@@ -16,9 +16,9 @@
 - [x] Heartbeat	12
 - [x] LeaveGroup	13
 - [x] SyncGroup	14
-- [ ] DescribeGroups	15
-- [ ] ListGroups	16
-- [ ] SaslHandshake	17
+- [x] DescribeGroups	15
+- [x] ListGroups	16
+- [x] SaslHandshake	17
 - [x] ApiVersions	18
 - [ ] CreateTopics	19
 - [ ] DeleteTopics	20

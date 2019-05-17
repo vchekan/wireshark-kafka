@@ -145,6 +145,9 @@ extern "C" fn dissect_kafka(
                 12 => { protocol::HartbeatRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
                 13 => { protocol::LeaveGroupRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
                 14 => { protocol::SyncGroupRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
+                15 => { protocol::DescribeGroupsRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
+                16 => { /* ListGroups Request is empty */ },
+                17 => { protocol::SaslHandshakeRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
                 18 => { /* Request is empty (no fields) */ },
                 _ => {
                     println!("Dissection not implemented for api_key: {}", api_key);
@@ -201,6 +204,9 @@ extern "C" fn dissect_kafka(
                         12 => {protocol::HartbeatResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
                         13 => {protocol::LeaveGroupResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
                         14 => {protocol::SyncGroupResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        15 => {protocol::DescribeGroupsResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        16 => {protocol::ListGroupsResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        17 => {protocol::SaslHandshakeResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
                         18 => {protocol::ApiVersionResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
                         _ => {println!("Unknown api_key: {}", correlation.api_key)}
                     }

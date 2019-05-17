@@ -95,7 +95,20 @@ ett!(ETT_KAFKA, ett_broker_host, ETT_TOPICS, ETT_CLIENT_ID,
     ETT_RACK_UPDATE_METADATA,
     ETT_LISTENER_NAME,
     ETT_UPDATE_METADATA_REQUEST_OFFLINE_REPLICAS,
-    ETT_UPDATE_METADATA_REQUEST_TOPIC
+    ETT_UPDATE_METADATA_REQUEST_TOPIC,
+    ETT_GROUP_IDS,
+    ETT_DESCRIBE_GROUP_STATE,
+    ETT_DESCRIBE_GROUP_GROUP_ID,
+    ETT_DESCRIBE_GROUP_ITEM,
+    ETT_DESCRIBE_GROUP_PROTOCOL_TYPE,
+    ETT_DESCRIBE_GROUP_PROTOCOL,
+    ETT_DESCRIBE_GROUPS_MEMBERS,
+    ETT_DESCRIBE_MEMBER_CLIENT_ID,
+    ETT_DESCRIBE_MEMBER_CLIENT_HOST,
+    ETT_LIST_GROUPS_GROUPS,
+    ETT_SASL_HANDSHAKE_REQUEST_MECHANISM,
+    ETT_SASL_HANDSHAKE_REQUEST_ENABLED_MECHANISMS,
+    ETT_SASL_HANDSHAKE_REQUEST_ENABLED_MECHANISM
 );
 
 header_fields!(
@@ -110,6 +123,8 @@ header_fields!(
     {hf_kafka_zk_version, "ZK version\0", "kafka.zk_version\0", ftenum_FT_UINT32, "ZK version\0"},
     {hf_kafka_replica, "Replica Id\0", "kafka.replica_id\0", ftenum_FT_UINT32, "Replica Id\0"},
     {hf_kafka_broker_epoch, "Broker epoch\0", "kafka.broker_id\0", ftenum_FT_UINT64, "The broker epoch.\0"},
+    {hf_kafka_client_id, "Client Id\0", "kafka.client_id\0", "Client Id.\0"},
+    {hf_kafka_client_host, "Client host\0", "kafka.client_host\0", "Client host.\0"},
 
     //
     {hf_kafka_node_id, "Node Id\0", "kafka.broker.node\0", ftenum_FT_INT32, "Broker node Id.\0"},
@@ -121,7 +136,6 @@ header_fields!(
     {hf_kafka_request_api_version, "API Version\0", "kafka.request.version\0", ftenum_FT_INT16, "Request API Version.\0"},
     {hf_kafka_string_len, "String Length\0", "kafka.string_len\0", ftenum_FT_INT16, "Generic length for kafka-encoded string.\0"},
     {hf_kafka_string, "String\0", "kafka.string\0", "String primitive value.\0"},
-    {hf_kafka_client_id, "Client Id\0", "kafka.client_id\0", "The ID of the sending client.\0"},
     {hf_kafka_array_count, "Array Count\0", "kafka.array_count\0", ftenum_FT_INT32, "Array count\0"},
     {hf_kafka_controller_id, "Controller Id\0", "kafka.controller_id\0", ftenum_FT_UINT32, "Controller Id.\0"},
     {hf_kafka_cluster_id, "Cluster Id\0", "kafka.topic_metadata.cluster_id\0", "Topic metadata cluster Id.\0"},
@@ -224,7 +238,13 @@ header_fields!(
     {hf_kafka_stop_replica_delete_partitions, "Delete partitions\0", "kafka.stop_replica.delete_partitions\0", ftenum_FT_BOOLEAN, "Indicates if replica's partitions must be deleted.\0"},
     {hf_kafka_security_protocol, "Security protocol\0", "kafka.security_protocol\0", ftenum_FT_UINT16, "The security protocol type.\0", SECURITY_PROTOCOL},
     {hf_kafka_update_meatadat_rack, "Rack\0", "kafka.rack\0", "Rack.\0"},
-    {hf_kafka_listener_name, "Listener name\0", "kafka.listener_name\0", ".\0"}
+    {hf_kafka_listener_name, "Listener name\0", "kafka.listener_name\0", "Listener name.\0"},
+    {haf_kafka_describe_group_state, "State\0", "kafka.describe_group.state\0", "The current state of the group (one of: Dead, Stable, CompletingRebalance, PreparingRebalance, or empty if there is no active group).\0"},
+    {hf_kafka_describe_group_protocol_type, "Protocol type\0", "kafka.describe_group.protocol_type\0", "The current group protocol type (will be empty if there is no active group).\0"},
+    {hf_kafka_describe_group_protocol, "Protocol\0", "kafka.describe_group.protocol\0", "The current group protocol (only provided if the group is Stable).\0"},
+    {hf_kafka_sasl_auth_bytes, "Auth bytes\0", "kafka.sasl.auth_bytes\0", ftenum_FT_BYTES|field_display_e_BASE_NONE, ".\0"},
+    {hf_kafka_sasl_mechanism, "SASL mechanism\0", "kafka.sasl.mechanism\0", "SASL Mechanism chosen by the client.\0"},
+    {hf_kafka_sasl_enabled_mechanism, "SASL enabled mechanism\0", "kafka.sasl.enabled_mechanism\0", "Array of mechanisms enabled in the server.\0"}
 );
 
 pub(crate) static mut hf_kafka_batch_compression: i32 = -1;

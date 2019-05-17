@@ -353,7 +353,6 @@ protocol!(UpdateMetadataResponse => {
     error_code: {hf_kafka_error: i16}
 });
 
-
 //
 // ApiKey 7 (ControlledShutdown)
 //
@@ -549,6 +548,71 @@ protocol!(SyncGroupResponse => {
     member_assignment: { dissect_bytes(hf_kafka_member_assignment) }
 });
 
+//
+// ApiKey 15 (DescribeGroups)
+//
+protocol!(DescribeGroupsRequest => {
+    group_ids : [GroupId ETT_GROUP_IDS]
+});
+
+protocol!(GroupId => {
+    group_id: {hf_kafka_group_id: String, ETT_GROUP_ID}
+});
+
+// Response
+protocol!(DescribeGroupsResponse => {
+    throttle_time_ms/1 : {hf_kafka_throttle_time_ms: i32},
+    groups: [DescribeGroupItem ETT_DESCRIBE_GROUP_ITEM]
+});
+
+protocol!(DescribeGroupItem => {
+    error_code: {hf_kafka_error: i16},
+    group_id: {hf_kafka_group_id: String, ETT_DESCRIBE_GROUP_GROUP_ID},
+    state : {haf_kafka_describe_group_state : String, ETT_DESCRIBE_GROUP_STATE},
+    protocol_type : {hf_kafka_describe_group_protocol_type: String, ETT_DESCRIBE_GROUP_PROTOCOL_TYPE},
+    protocol : {hf_kafka_describe_group_protocol: String, ETT_DESCRIBE_GROUP_PROTOCOL},
+    members : [DescribeGroupsMembers ETT_DESCRIBE_GROUPS_MEMBERS]
+});
+
+protocol!(DescribeGroupsMembers => {
+    member_id: {hf_kafka_member_id: String, ETT_MEMBER_ID},
+    client_id : {hf_kafka_client_id : String, ETT_DESCRIBE_MEMBER_CLIENT_ID},
+    client_host : {hf_kafka_client_host : String, ETT_DESCRIBE_MEMBER_CLIENT_HOST},
+    member_metadata : { dissect_bytes(hf_kafka_member_metadata) },
+    member_assignment : { dissect_bytes(hf_kafka_member_assignment) }
+});
+
+//
+// ApiKey 16 (ListGroups)
+//
+protocol!(ListGroupsResponse => {
+    throttle_time_ms/1 : {hf_kafka_throttle_time_ms: i32},
+    error_code: {hf_kafka_error: i16},
+    groups : [ListGroupsGroup ETT_LIST_GROUPS_GROUPS]
+});
+
+protocol!(ListGroupsGroup => {
+    group_id: {hf_kafka_group_id: String, ETT_DESCRIBE_GROUP_GROUP_ID},
+    protocol : {hf_kafka_describe_group_protocol: String, ETT_DESCRIBE_GROUP_PROTOCOL}
+});
+
+//
+// ApiKey 17 (SaslHandshake)
+//
+protocol!(SaslHandshakeRequest => {
+    mechanism : {hf_kafka_sasl_mechanism : String, ETT_SASL_HANDSHAKE_REQUEST_MECHANISM}
+});
+
+// Response
+
+protocol!(SaslHandshakeResponse => {
+    error_code: {hf_kafka_error: i16},
+    enabled_mechanism : [SaslHandshakeEnabledMechanism ETT_SASL_HANDSHAKE_REQUEST_ENABLED_MECHANISMS]
+});
+
+protocol!(SaslHandshakeEnabledMechanism => {
+    enabled_mechanism : {hf_kafka_sasl_enabled_mechanism : String, ETT_SASL_HANDSHAKE_REQUEST_ENABLED_MECHANISM}
+});
 
 //
 // ApiKey 18 (ApiVersion). Note: Request is empty (no fields)
