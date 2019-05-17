@@ -1,3 +1,5 @@
+#![feature(trace_macros)]
+
 use wireshark_ffi::bindings::*;
 use std::os::raw::{c_char, c_int, c_void};
 use lazy_static::lazy_static;
@@ -212,8 +214,204 @@ protocol!(OfflineReplicas => {
 });
 
 //
-// TODO: ApiKey 4-8
+// ApiKey 4 (LeaderAndIsr)
 //
+protocol!(LeaderAndIsrRequest => {
+    controller_id : {hf_kafka_controller_id : i32},
+    controller_epoch: {hf_kafka_controller_epoch: i32},
+    broker_epoch/2 : {hf_kafka_broker_epoch : i64},
+    topic_states/2 : [LeaderAndIsrRequestTopicState ETT_LEADER_AND_ISR_TOPIC_STATE],
+    partition_states/(-2) : [LeaderAndIsrRequestPartitionStates ETT_LEADER_AND_ISR_PARTITION_STATES ],
+    live_leaders : [LeaderAndIsrRequestLiveLeaders ETT_LEADER_AND_ISR_LIVE_LEADERS]
+});
+
+protocol!(LeaderAndIsrRequestTopicState => {
+    topic : {hf_kafka_topic_name: String, ETT_LEADER_AND_ISR_TOPIC},
+    partition_states : [LeaderAndIsrPartitionState2 ETT_LEADER_AND_ISR_PARTITION_STATES]
+});
+
+protocol!(LeaderAndIsrPartitionState2 => {
+    partition: {hf_kafka_partition: i32},
+    controller_epoch: {hf_kafka_controller_epoch: i32},
+    leader : {hf_kafka_leader : i32},
+    leader_epoch : {hf_kafka_leader_epoch: i32},
+    isr : [Isr ETT_LEADER_AND_ISR_REQUEST_ISRS],
+    zk_version : {hf_kafka_zk_version: i32},
+    replicas : [Replicas ETT_LEADER_AND_ISR_REPLICAS],
+    is_new/1 : {hf_kafka_leader_and_isr_is_new : bool}
+});
+
+protocol!(LeaderAndIsrRequestPartitionStates => {
+    topic : {hf_kafka_topic_name: String, ETT_LEADER_AND_ISR_REQUEST_PARTITION_STATE_TOPIC},
+    partition: {hf_kafka_partition: i32},
+    controller_epoch: {hf_kafka_controller_epoch: i32},
+    leader : {hf_kafka_leader : i32},
+    leader_epoch : {hf_kafka_leader_epoch: i32},
+    isr : [Isr ETT_LEADER_AND_ISR_REQUEST_ISRS],
+    zk_version : {hf_kafka_zk_version: i32},
+    replicas : [Replicas ETT_LEADER_AND_ISR_REPLICAS],
+    is_new/1 : {hf_kafka_leader_and_isr_is_new : bool}
+});
+
+protocol!(LeaderAndIsrRequestLiveLeaders => {
+    id : {hf_kafka_broker_id: i32},
+    host: {hf_kafka_host: String, ETT_LEADER_AND_ISR_HOST},
+    port: {hf_kafka_port: i32}
+});
+
+protocol!(Replicas => {
+    replica : {hf_kafka_replica : i32}
+});
+
+// Response
+protocol!(LeaderAndIsrResponse => {
+    error_code: {hf_kafka_error: i16},
+    partitions : [LeaderAndIsrResponsePartition ETT_LEADER_AND_ISR_RESPONSE_PARTITION]
+});
+
+protocol!(LeaderAndIsrResponsePartition => {
+    topic : {hf_kafka_topic_name: String, ETT_LEADER_AND_ISR_RESPONSE_TOPIC},
+    partition: {hf_kafka_partition: i32},
+    error_code: {hf_kafka_error: i16}
+});
+
+//
+// ApiKey 5 (StopReplica)
+//
+protocol!(StopReplicaRequest => {
+    controller_id : {hf_kafka_controller_id: i32},
+    controller_epoch: {hf_kafka_controller_epoch: i32},
+    broker_epoch/1 : {hf_kafka_broker_epoch : i64},
+    delete_partitions : {hf_kafka_stop_replica_delete_partitions : bool},
+    partitions : [StopReplicaRequestPartition ETT_STOP_REPLICA_REQUEST_PARTITIONS]
+});
+
+protocol!(StopReplicaRequestPartition => {
+    topic : {hf_kafka_topic_name: String, ETT_STOP_REPLICA_PARTITION_TOPIC},
+    partition/(-1) : {hf_kafka_partition: i32},
+    partition_ids/1 : [StopReplicaRequestPartitionId ETT_STOP_REPLICA_PARTITION_IDS]
+});
+
+protocol!(StopReplicaRequestPartitionId => {
+    partition: {hf_kafka_partition: i32}
+});
+
+// Response
+protocol!(StopReplicaResponse => {
+    error_code: {hf_kafka_error: i16},
+    partitions : [StopReplicaResponsePartition ETT_STOP_REPLICA_RESPONSE_PARTITIONS]
+});
+
+protocol!(StopReplicaResponsePartition => {
+    topic : {hf_kafka_topic_name: String, ETT_STOP_REPLICA_RESPONSE_PARTITION_TOPIC},
+    partition : {hf_kafka_partition: i32},
+    error_code: {hf_kafka_error: i16}
+});
+
+//
+// ApiKey 6 (UpdateMetadata)
+//
+
+protocol!(UpdateMetadataRequest => {
+    controller_id : {hf_kafka_controller_id: i32},
+    controller_epoch: {hf_kafka_controller_epoch: i32},
+    partition_states : [UpdateMetadataRequestPartitionState ETT_UPDATE_METADATA_REQUEST_PARTITION_STATES],
+    broker_epoch/5 : {hf_kafka_broker_epoch : i64},
+    topic/5 : {hf_kafka_topic_name: String, ETT_UPDATE_METADATA_REQUEST_TOPIC},
+    live_brokers : [UpdateMetadataRequestLiveBroker ETT_UPDATE_METADATA_LIVE_BROKERS]
+});
+
+protocol!(UpdateMetadataRequestPartitionState => {
+    topic/(-5) : {hf_kafka_topic_name: String, ETT_UPDATE_METADATA_PARTITION_TOPIC},
+    partition : {hf_kafka_partition: i32},
+    controller_epoch: {hf_kafka_controller_epoch: i32},
+    leader : {hf_kafka_leader : i32},
+    leader_epoch : {hf_kafka_leader_epoch: i32},
+    isr : [Isr ETT_LEADER_AND_ISR_REQUEST_ISRS],
+    zk_version : {hf_kafka_zk_version: i32},
+    replicas : [Replicas ETT_UPDATE_METADATA_REQUEST_REPLICAS],
+    offline_replicas/4 : [Replicas ETT_UPDATE_METADATA_REQUEST_OFFLINE_REPLICAS]
+});
+
+protocol!(UpdateMetadataRequestLiveBroker => {
+    id : {hf_kafka_broker_id: i32},
+    host/(-1) : {hf_kafka_host: String, ETT_UPDATE_METADATA_HOST},
+    port/(-1) : {hf_kafka_port: i32},
+    end_points/1 : [UpdateMetadataUpdateRequestEndPoint ETT_UPDATE_METADATA_END_POINT],
+    rack/2 : {hf_kafka_update_meatadat_rack : String, ETT_RACK_UPDATE_METADATA}
+});
+
+protocol!(UpdateMetadataUpdateRequestEndPoint => {
+    port: {hf_kafka_port: i32},
+    host: {hf_kafka_host: String, ETT_LEADER_AND_ISR_HOST},
+    listener_name/3 : {hf_kafka_listener_name : String, ETT_LISTENER_NAME},
+    security_protocol_type : {hf_kafka_security_protocol : i16}
+});
+
+// Response
+protocol!(UpdateMetadataResponse => {
+    error_code: {hf_kafka_error: i16}
+});
+
+
+//
+// ApiKey 7 (ControlledShutdown)
+//
+protocol!(ControlledShutdownRequest => {
+    broker_id : {hf_kafka_controlled_shutdown_broker_id: i32},
+    broker_epoch/2 : {hf_kafka_broker_epoch : i64}
+});
+
+// Response
+protocol!(ControlledShutdownResponse => {
+    error_code: {hf_kafka_error: i16},
+    partitions_remaining : [ControlledShutdownPartitionRemaining ETT_CONTROLLED_SHUTDOWN_PARTITION_REMAINING]
+});
+
+protocol!(ControlledShutdownPartitionRemaining => {
+    topic : {hf_kafka_topic_name: String, ETT_CONTROLLED_SHUTDOWN_RESPONSE_TOPIC},
+    partition: {hf_kafka_partition: i32}
+});
+
+//
+// ApiKey 8 (OffsetCommit)
+//
+protocol!(OffsetCommitRequest => {
+    group_id : {hf_kafka_group_id: String, ETT_GROUP_ID},
+    generation_id/1: {hf_kafka_generation_id: i32},
+    member_id/1: {hf_kafka_member_id: String, ETT_MEMBER_ID},
+    retention_time/(2-5) : {hf_kafka_offset_commit_retention_time : i64},
+    topics : [OffsetCommitRequestTopic ETT_OFFSET_COMMIT_REQUEST_TOPIC]
+});
+
+protocol!(OffsetCommitRequestTopic => {
+    topic : {hf_kafka_topic_name: String, ETT_METADATA_TOPIC},
+    partitions : [OffsetCommitRequestPartition ETT_OFFSET_COMMIT_REQUEST_PARTITIONS]
+});
+
+protocol!(OffsetCommitRequestPartition => {
+    partition: {hf_kafka_partition: i32},
+    offset : {hf_kafka_offset : i64},
+    timestamp/(1-2): {hf_kafka_commit_offset_timestamp : i64},
+    leader_epoch/6 : {hf_kafka_offset_commit_leader_epoch : i32},
+    metadata : {hf_kafka_offset_commit_metadata : String, ETT_OFFSET_COMMIT_METADATA}
+});
+
+// Response
+protocol!(OffsetCommitResponse => {
+    throttle_time_ms/3 : {hf_kafka_throttle_time_ms: i32},
+    responses : [OffsetCommitResponseItem ETT_OFFSET_COMMIT_RESPONSES]
+});
+
+protocol!(OffsetCommitResponseItem => {
+    topic : {hf_kafka_topic_name: String, ETT_OFFSET_COMMIT_RESPONSE_TOPIC},
+    partition_responses : [OffsetCommitResponsePartition ETT_OFFSET_COMMIT_RESPONSE_PARTITIONS ]
+});
+
+protocol!(OffsetCommitResponsePartition => {
+    partition: {hf_kafka_partition: i32},
+    error_code: {hf_kafka_error: i16}
+});
 
 //
 // ApiKey 9 (OffsetFetch)

@@ -5,11 +5,11 @@
 - [x] Fetch	1
 - [x] ListOffsets	2
 - [x] Metadata	3
-- [ ] LeaderAndIsr	4
-- [ ] StopReplica	5
-- [ ] UpdateMetadata	6
-- [ ] ControlledShutdown	7
-- [ ] OffsetCommit	8
+- [x] LeaderAndIsr	4
+- [x] StopReplica	5
+- [X] UpdateMetadata	6
+- [x] ControlledShutdown	7
+- [x] OffsetCommit	8
 - [x] OffsetFetch	9
 - [x] FindCoordinator	10
 - [x] JoinGroup	11

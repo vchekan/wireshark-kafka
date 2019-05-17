@@ -158,6 +158,19 @@ macro_rules! dissect_field {
 
 }
 
+macro_rules! _resolve_version {
+    ($api_version:ident, ($from:ident - $to:ident) ) => {
+        $api_version >= $from && api_version < $to
+    };
+    ($api_version:ident, $version:expr) => {
+        $api_version >= $version
+    };
+    ($api_version:ident,  (-$version:ident) ) => {
+        $api_version < $version
+    };
+    () => {true};
+}
+
 macro_rules! protocol {
     ($sname:ident => { $( $f:ident $(/$version:tt)? : $tp:tt ),* } ) => {
         pub(crate) struct $sname {}
@@ -165,9 +178,8 @@ macro_rules! protocol {
         impl $sname {
             pub(crate) fn dissect(tvb: *mut tvbuff_t, pinfo: *mut packet_info, tree: *mut proto_tree, mut offset: i32, api_version: i16) -> i32 {
                 $(
-                    // If field is labeled with positive version, then it is applicable since this version
-                    // but if version label is negative it means that field in not applicable since this version
-                    $(if $version > 0 && api_version >= $version || $version < 0 && api_version < (-$version))? {
+                    let version_match = _resolve_version!($(api_version, $version)? );
+                    if version_match {
                         dissect_field!(tree, tvb, pinfo, offset, api_version, $f, $tp);
                     }
                 )*

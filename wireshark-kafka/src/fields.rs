@@ -61,7 +61,41 @@ ett!(ETT_KAFKA, ett_broker_host, ETT_TOPICS, ETT_CLIENT_ID,
     ETT_OFFSET_FETCH_RESPONSES,
     ETT_OFFSET_FETCH_ITEM_TOPIC,
     ETT_OFFSET_FETCH_TOPIC_PARTITION,
-    ETT_FETCH_RESPONSE_METADATA
+    ETT_FETCH_RESPONSE_METADATA,
+    ETT_OFFSET_COMMIT_REQUEST_TOPIC,
+    ETT_OFFSET_COMMIT_REQUEST_PARTITIONS,
+    ETT_OFFSET_COMMIT_METADATA,
+    ETT_OFFSET_COMMIT_RESPONSES,
+    ETT_OFFSET_COMMIT_RESPONSE_TOPIC,
+    ETT_OFFSET_COMMIT_RESPONSE_PARTITIONS,
+    ETT_CONTROLLED_SHUTDOWN_PARTITION_REMAINING,
+    ETT_CONTROLLED_SHUTDOWN_RESPONSE_TOPIC,
+    ETT_LEADER_AND_ISR_LIVE_LEADERS,
+    ETT_LEADER_AND_ISR_REQUEST_ISRS,
+    ETT_LEADER_AND_ISR_REPLICAS,
+    ETT_LEADER_AND_ISR_HOST,
+    ETT_LEADER_AND_ISR_TOPIC_STATE,
+    ETT_LEADER_AND_ISR_TOPIC,
+    ETT_LEADER_AND_ISR_PARTITION_STATES,
+    ETT_LEADER_AND_ISR_REQUEST_PARTITION_STATE_TOPIC,
+    ETT_LEADER_AND_ISR_RESPONSE_PARTITION,
+    ETT_LEADER_AND_ISR_RESPONSE_TOPIC,
+    ETT_STOP_REPLICA_REQUEST_PARTITIONS,
+    ETT_STOP_REPLICA_PARTITION_TOPIC,
+    ETT_STOP_REPLICA_PARTITION_IDS,
+    ETT_STOP_REPLICA_RESPONSE_PARTITIONS,
+    ETT_STOP_REPLICA_RESPONSE_PARTITION_TOPIC,
+    ETT_UPDATE_METADATA_REQUEST_PARTITION_STATES,
+    ETT_UPDATE_METADATA_LIVE_BROKERS,
+    ETT_UPDATE_METADATA_PARTITION_TOPIC,
+    ETT_UPDATE_METADATA_REPLICAS,
+    ETT_UPDATE_METADATA_REQUEST_REPLICAS,
+    ETT_UPDATE_METADATA_HOST,
+    ETT_UPDATE_METADATA_END_POINT,
+    ETT_RACK_UPDATE_METADATA,
+    ETT_LISTENER_NAME,
+    ETT_UPDATE_METADATA_REQUEST_OFFLINE_REPLICAS,
+    ETT_UPDATE_METADATA_REQUEST_TOPIC
 );
 
 header_fields!(
@@ -70,6 +104,12 @@ header_fields!(
     {hf_kafka_group_id, "Group Id\0", "kafka.group_id\0", "The unique group identifier.\0"},
     {hf_kafka_session_timeout, "Session timeout\0", "kafka.session_timeout\0", ftenum_FT_UINT32, "The coordinator considers the consumer dead if it receives no heartbeat after this timeout in ms.\0"},
     {hf_kafka_offset, "Offset\0", "kafka.offset\0", ftenum_FT_UINT64, "Message offset to be committed\0"},
+    {hf_kafka_controller_epoch, "Controller epoch\0", "kafka.controller_epoch\0", ftenum_FT_UINT32, "Controller epoch.\0"},
+    {hf_kafka_leader, "Leader\0", "kafka.leader\0", ftenum_FT_UINT32, "The broker id for the leader.\0"},
+    {hf_kafka_leader_epoch, "Leader epoch\0", "kafka.leader_epoch\0", ftenum_FT_UINT32, "Leader epoch\0"},
+    {hf_kafka_zk_version, "ZK version\0", "kafka.zk_version\0", ftenum_FT_UINT32, "ZK version\0"},
+    {hf_kafka_replica, "Replica Id\0", "kafka.replica_id\0", ftenum_FT_UINT32, "Replica Id\0"},
+    {hf_kafka_broker_epoch, "Broker epoch\0", "kafka.broker_id\0", ftenum_FT_UINT64, "The broker epoch.\0"},
 
     //
     {hf_kafka_node_id, "Node Id\0", "kafka.broker.node\0", ftenum_FT_INT32, "Broker node Id.\0"},
@@ -83,7 +123,7 @@ header_fields!(
     {hf_kafka_string, "String\0", "kafka.string\0", "String primitive value.\0"},
     {hf_kafka_client_id, "Client Id\0", "kafka.client_id\0", "The ID of the sending client.\0"},
     {hf_kafka_array_count, "Array Count\0", "kafka.array_count\0", ftenum_FT_INT32, "Array count\0"},
-    {hf_kafka_controller_id, "Controller Id\0", "kafka.topic_metadata.controller_id\0", ftenum_FT_INT32, "Topic metadata controller Id.\0"},
+    {hf_kafka_controller_id, "Controller Id\0", "kafka.controller_id\0", ftenum_FT_UINT32, "Controller Id.\0"},
     {hf_kafka_cluster_id, "Cluster Id\0", "kafka.topic_metadata.cluster_id\0", "Topic metadata cluster Id.\0"},
     {hf_kafka_topic_name, "Topic Name\0", "kafka.topic_name\0", "Topic name.\0"},
     {hf_kafka_is_internal, "Is internal\0", "kafka.is_internal\0", ftenum_FT_BOOLEAN, "Is internal topic.\0"},
@@ -91,7 +131,7 @@ header_fields!(
     {hf_kafka_metadata_leader, "Leader\0", "kafka.topic_metadata.leader\0", ftenum_FT_INT32, "Topic metadata leader.\0"},
     {hf_kafka_metadata_replicas, "Replicas\0", "kafka.topic_metadata.replicas\0", ftenum_FT_INT32, "Topic metadata replicas.\0"},
     {hf_kafka_metadata_isr, "Isr\0", "kafka.topic_metadata.isr\0", ftenum_FT_INT32, "Topic metadata isr.\0"},
-    {hf_kafka_allow_auto_topic_creation, "Allow topic creation\0", "kafka.topic_metadata.allow_topic_creation\0", ftenum_FT_BOOLEAN, ".\0"},
+    {hf_kafka_allow_auto_topic_creation, "Allow topic creation\0", "kafka.topic_metadata.allow_topic_creation\0", ftenum_FT_BOOLEAN, "Allow topic creation.\0"},
     {hf_kafka_rack, "Rack\0", "kafka.broker.rack\0", "Broker rack.\0"},
     {hf_kafka_throttle_time_ms, "Throttle time\0", "kafka.throttle_time\0", ftenum_FT_INT32, "Response throttle time in ms.\0"},
     {hf_kafka_offline_replica, "Offline replicas\0", "kafka.offline_replica\0", ftenum_FT_INT32, "Offline replicas\0"},
@@ -102,7 +142,6 @@ header_fields!(
     {hf_kafka_recordbatch_segment_size, "Segment size\0", "kafka.recordbatch.segment_size\0", ftenum_FT_INT32, "Record batch segment size (bytes)\0"},
     {hf_kafka_recordbatch_baseoffset, "Base offset\0", "kafka.recordbatch.baseoffset\0", ftenum_FT_INT64, "Record batch base offset\0"},
     {hf_kafka_recordbatch_batchlength, "Batch length\0", "kafka.recordbatch.batchlength\0", ftenum_FT_INT32, "Record batch length\0"},
-    {hf_kafka_recordbatch_partition_leader_epoch, "Partition leader epoch\0", "kafka.recordbatch.partitionleaderepoch\0", ftenum_FT_INT32, "Record batch partition leader epoch\0"},
     {hf_kafka_recordbatch_magic, "Magic\0", "kafka.recordbatch.magic\0", ftenum_FT_UINT8, "Record batch magic\0"},
     {hf_kafka_recordbatch_crc, "Crc\0", "kafka.recordbatch.crc\0", ftenum_FT_UINT32|field_display_e_BASE_HEX, "Record batch CRC\0"},
     {hf_kafka_recordbatch_attributes, "Attributes\0", "kafka.recordbatch.attributes\0", ftenum_FT_UINT16, "Record batch attributes\0"},
@@ -171,8 +210,21 @@ header_fields!(
     {hf_kafka_leader_id, "Leader Id\0", "kafka.leader_id\0", "The leader of the group.\0"},
     {hf_kafka_member_metadata, "Member metadata\0", "kafka.member_metadata\0", ftenum_FT_BYTES | field_display_e_BASE_NONE, "Member metadata.\0"},
     {hf_kafka_member_assignment, "Member assignment\0", "kafka.member_assignment\0", ftenum_FT_BYTES | field_display_e_BASE_NONE, "Member assignment.\0"},
-    {hf_kafka_fetch_response_metadata, "Metadata\0", "kafka.offset_fetch_metadata\0", "Any associated metadata the client wants to keep.\0"},
-    {hf_kafka_offset_fetch_leader_epoch, "Leader epoch\0", "kafka.offset_fetch\0", ftenum_FT_UINT32, "The leader epoch, if provided is derived from the last consumed record. This is used by the consumer to check for log truncation and to ensure partition metadata is up to date following a group rebalance.\0"}
+    {hf_kafka_fetch_response_metadata, "Metadata\0", "kafka.offset_fetch.metadata\0", "Any associated metadata the client wants to keep.\0"},
+    {hf_kafka_offset_fetch_leader_epoch, "Leader epoch\0", "kafka.offset_fetch\0", ftenum_FT_UINT32, "The leader epoch, if provided is derived from the last consumed record. This is used by the consumer to check for log truncation and to ensure partition metadata is up to date following a group rebalance.\0"},
+    {hf_kafka_offset_commit_metadata, "Metadata\0", "kafka.offset_commit.metadata\0", "Any associated metadata the client wants to keep.\0"},
+    {hf_kafka_commit_offset_timestamp, "Timestamp\0", "kafka.commit_offset.timestamp\0", ftenum_FT_ABSOLUTE_TIME|absolute_time_display_e_ABSOLUTE_TIME_UTC, "Timestamp of the commit.\0"},
+    {hf_kafka_offset_commit_retention_time, "Retention time\0", "kafka.offset_commit.retention_time\0", ftenum_FT_UINT64, "Time period in ms to retain the offset.\0"},
+    {hf_kafka_offset_commit_leader_epoch, "Leader epoch\0", "kafka.offset_commit.leader_epoch\0", ftenum_FT_UINT32, "The leader epoch, if provided is derived from the last consumed record. This is used by the consumer to check for log truncation and to ensure partition metadata is up to date following a group rebalance.\0"},
+    {hf_kafka_controlled_shutdown_broker_id, "Broker Id\0", "kafka.controlled_shutdown.broker_id\0", ftenum_FT_UINT32, "The id of the broker for which controlled shutdown has been requested.\0"},
+    //
+    {hf_kafka_broker_id, "Broker Id\0", "kafka.broker_id\0", ftenum_FT_UINT32, "Broker Id.\0"},
+    {hf_kafka_leader_and_isr_is_new, "Is new\0", "kafka.leader_and_isr.is_new\0", ftenum_FT_BOOLEAN, "Whether the replica should have existed on the broker or not.\0"},
+    //
+    {hf_kafka_stop_replica_delete_partitions, "Delete partitions\0", "kafka.stop_replica.delete_partitions\0", ftenum_FT_BOOLEAN, "Indicates if replica's partitions must be deleted.\0"},
+    {hf_kafka_security_protocol, "Security protocol\0", "kafka.security_protocol\0", ftenum_FT_UINT16, "The security protocol type.\0", SECURITY_PROTOCOL},
+    {hf_kafka_update_meatadat_rack, "Rack\0", "kafka.rack\0", "Rack.\0"},
+    {hf_kafka_listener_name, "Listener name\0", "kafka.listener_name\0", ".\0"}
 );
 
 pub(crate) static mut hf_kafka_batch_compression: i32 = -1;
@@ -331,14 +383,13 @@ static KAFKA_COORDINATOR_TYPE : [value_string; 3] = [
     value_string { value: 0_u32, strptr: 0 as *const i8},
 ];
 
-
-// hf
-/*
-pub(crate) static mut hf_kafka_support_min_version: i32 = -1;
-pub(crate) static mut hf_kafka_support_max_version: i32 = -1;
-pub(crate) static mut hf_kafka_broker_host: i32 = -1;
-*/
-
+static SECURITY_PROTOCOL : [value_string; 5] = [
+    value_string { value: 0_u32, strptr: i8_str("PLAINTEXT\0")},
+    value_string { value: 0_u32, strptr: i8_str("SSL\0")},
+    value_string { value: 0_u32, strptr: i8_str("SASL_PLAINTEXT\0")},
+    value_string { value: 0_u32, strptr: i8_str("SASL_SSL\0")},
+    value_string { value: 0_u32, strptr: 0 as *const i8},
+];
 
 lazy_static! {
     // TODO: should they terminate with null tuple?
@@ -363,48 +414,6 @@ lazy_static! {
         .collect();
 
 }
-
-
-
-/*
-lazy_static! {
-        hf_register_info {
-            p_id: unsafe { &mut hf_kafka_support_min_version as *mut _ },
-            hfinfo: header_field_info {
-                name: i8_str("Min Version\0"),
-                abbrev: i8_str("kafka.api_versions.min_version\0"),
-                type_: ftenum_FT_INT16,
-                display: field_display_e_BASE_DEC as i32,
-                strings: 0 as *const c_void,
-                bitmask: 0,
-                blurb: i8_str("Minimal version which supports api key.\0"),
-                id: -1,
-                parent: 0,
-                ref_type: hf_ref_type_HF_REF_TYPE_NONE,
-                same_name_prev_id: -1,
-                same_name_next: 0 as *mut _header_field_info,
-            }
-        },
-        hf_register_info {
-            p_id: unsafe { &mut hf_kafka_support_max_version as *mut _ },
-            hfinfo: header_field_info {
-                name: i8_str("Max Version\0"),
-                abbrev: i8_str("kafka.api_versions.max_version\0"),
-                type_: ftenum_FT_INT16,
-                display: field_display_e_BASE_DEC as i32,
-                strings: 0 as *const c_void,
-                bitmask: 0,
-                blurb: i8_str("Maximum version which supports api key.\0"),
-                id: -1,
-                parent: 0,
-                ref_type: hf_ref_type_HF_REF_TYPE_NONE,
-                same_name_prev_id: -1,
-                same_name_next: 0 as *mut _header_field_info,
-            }
-        },
-    ]);
-}
-*/
 
 pub(crate) static api_keys: [(u16, &'static str); 43] = [
     (0, "Produce\0"),
