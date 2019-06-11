@@ -628,3 +628,220 @@ protocol!(ApiVersion => {
     min_version: {hf_kafka_min_version: i16},
     max_version: {hf_kafka_max_version: i16}
 });
+
+//
+// ApiKey 19 (CreateTopicRequest)
+//
+protocol!(CreateTopicRequest => {
+    create_topic_requests : [CreateTopicRequestItem ETT_CREATE_TOPIC_REQUEST],
+    timeout : {hf_kafka_timeout : i32},
+    validate_only/1 :{hf_kafka_create_topic_validate_only : bool}
+});
+
+protocol!(CreateTopicRequestItem => {
+    topic : {hf_kafka_topic_name : String, ETT_CREATE_TOPIC_REQUEST_TOPIC},
+    num_partitions : {hf_kafka_create_topic_num_partitions : i32},
+    replication_factor : {hf_kafka_create_topic_replication_factor : i16},
+    replica_assignments : [CreateTopicReplicaAssignment ETT_REPLICA_ASSIGNMENT],
+    config_entries : [CreateTopicsConfig ETT_CREATE_TOPIC_CONFIG]
+});
+
+protocol!(CreateTopicReplicaAssignment => {
+    partition : {hf_kafka_partition : i32},
+    replicas : [CreateTopicReplica ETT_CREATE_TOPIC_REPLICAS]
+});
+
+protocol!(CreateTopicReplica => {
+    replicas : {hf_kafka_create_topic_replicas : i32}
+});
+
+protocol!(CreateTopicsConfig => {
+    config_name : {hf_kafka_create_topic_config_name : String, ETT_CREATE_TOPIC_CONFIG_NAME},
+    config_value : {hf_kafka_create_topic_config_value : String, ETT_CREATE_TOPIC_CONFIG_VALUE}
+});
+
+// Response
+protocol!(CreateTopicResponse => {
+    throttle_time_ms/2 : {hf_kafka_throttle_time_ms: i32},
+    topic_error : [CreateTopicError ETT_CREATE_TOPIC_ERROR]
+});
+
+protocol!(CreateTopicError => {
+    topic : {hf_kafka_topic_name : String, ETT_CREATE_TOPIC_REQUEST_TOPIC},
+    error_code: {hf_kafka_error: i16},
+    error_message/1 : {hf_kafka_error_message : String, ETT_CREATE_TOPIC_ERROR_MESSAGE}
+});
+
+//
+// ApiKey 20 (DeleteTopics)
+//
+protocol!(DeleteTopicsRequest => {
+    topics : [DeleteTopicsTopic ETT_DELETE_TOPICS_REQUEST_TOPICS],
+    timeout : {hf_kafka_timeout : i32}
+});
+
+protocol!(DeleteTopicsTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_DELETE_TOPICS_REQUEST_TOPIC}
+});
+
+// Response
+protocol!(DeleteTopicsResponse => {
+    throttle_time_ms/1 : {hf_kafka_throttle_time_ms: i32},
+    topic_error_codes : [DeleteTopicsErrorCode ETT_DELETE_TOPICS_ERROR_CODES]
+});
+
+protocol!(DeleteTopicsErrorCode => {
+    topic : {hf_kafka_topic_name : String, ETT_DELETE_TOPICS_RESPONSE_TOPIC},
+    error_code: {hf_kafka_error: i16}
+});
+
+//
+// ApiKey 21 (DeleteRecords)
+//
+protocol!(DeleteRecordsRequest => {
+    topics : [DeleteRecordsTopic ETT_DELETE_RECORDS_REQUEST_TOPICS],
+    timeout : {hf_kafka_timeout : i32}
+});
+
+protocol!(DeleteRecordsTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_DELETE_RECORDS_REQUEST_TOPIC},
+    partitions : [DeleteRecordsRequestPartition ETT_DELETE_RECORDS_REQUEST_PARTITIONS]
+});
+
+protocol!(DeleteRecordsRequestPartition => {
+    partition : {hf_kafka_partition : i32},
+    offset : {hf_kafka_offset : i64}
+});
+
+// Response
+protocol!(DeleteRecordsResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    topics : [DeleteRecordsResponseTopic ETT_DELETE_RECORDS_RESPONSE_TOPICS]
+});
+
+protocol!(DeleteRecordsResponseTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_DELETE_RECORDS_RESPONSE_TOPIC},
+    partitions : [DeleteRecordsResponsePartition ETT_DELETE_RECORDS_RESPONSE_PARTITIONS]
+});
+
+protocol!(DeleteRecordsResponsePartition => {
+    partition : {hf_kafka_partition : i32},
+    low_watermark : {hf_kafka_offset : i64},
+    error_code: {hf_kafka_error: i16}
+});
+
+//
+// ApiKey 22 (InitProducerId)
+//
+protocol!(InitProducerIdRequest => {
+    transactional_id : {hf_kafka_transactional_id : String, ETT_INIT_PRODUCER_ID_TRANSACTIONAL_ID},
+    transaction_timeout_ms : {hf_kafka_transaction_timeout_ms : i32}
+});
+
+protocol!(InitProducerIdResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    error_code: {hf_kafka_error: i16},
+    producer_id : {hf_kafka_producer_id : i64},
+    producer_epoch : {hf_kafka_producer_epoch : i16}
+});
+
+//
+// ApiKey 23 (OffsetForLeaderEpoch)
+//
+protocol!(OffsetForLeaderEpoch => {
+    topics : [OffsetForLeaderEpochTopic ETT_OFFSET_FOR_LEADER_EPOCH_TOPICS]
+});
+
+protocol!(OffsetForLeaderEpochTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_OFFSET_FOR_LEADER_EPOCH_TOPIC},
+    partitions : [OffsetForLeaderEpochPartition ETT_OFFSET_FOR_LEADER_EPOCH]
+});
+
+protocol!(OffsetForLeaderEpochPartition => {
+    partition : {hf_kafka_partition : i32},
+    current_leader_epoch/1 : {hf_kafka_offset_for_leader_epoch_current_epoch : i32},
+    leader_epoch : {hf_kafka_offset_for_leader_epoch_epoch : i32}
+});
+
+// Response
+protocol!(OffsetForLeaderEpochResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    topics : [OffsetForLeaderEpochResponseTopic ETT_OFFSET_FOR_LEADER_EPOCH_RESPONSE_TOPICS]
+});
+
+protocol!(OffsetForLeaderEpochResponseTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_OFFSET_FOR_LEADER_EPOCH_RESPONSE_TOPIC},
+    partitions : [OffsetForLeaderEpochResponsePartition ETT_OFFSET_FOR_LEADER_EPOCH_RESPONSE_PARTITIONS]
+});
+
+protocol!(OffsetForLeaderEpochResponsePartition => {
+    error_code: {hf_kafka_error: i16},
+    partition : {hf_kafka_partition : i32},
+    leader_epoch/1 : {hf_kafka_offset_for_leader_epoch_epoch : i32},
+    end_offset : {hf_kafka_offset : i64}
+});
+
+//
+// ApiKey 24 (AddPartitionsToTxn)
+//
+protocol!(AddPartitionsToTxnRequests => {
+    transactional_id : {hf_kafka_transactional_id : String, ETT_ADD_PARTITIONS_TO_TXN_REQUEST_TRANSACTIONAL_ID},
+    producer_id : {hf_kafka_producer_id : i64},
+    producer_epoch : {hf_kafka_producer_epoch : i16},
+    topics : [AddPartitionsToTxnRequestTopic ETT_ADD_PARTITIONS_TO_TXN_REQUEST_TOPICS]
+});
+
+protocol!(AddPartitionsToTxnRequestTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_ADD_PARTITIONS_TO_TXN_REQUEST_TOPIC},
+    partitions : [AddPartitionsToTxnRequestPartition ETT_ADDPARTITIONSTOTXNREQUESTTOPIC]
+});
+
+protocol!(AddPartitionsToTxnRequestPartition => {
+    partition : {hf_kafka_partition : i32}
+});
+
+// Response
+protocol!(AddPartitionsToTxnResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    errors : [AddPartitionsToTxnResponseError ETT_ADDPARTITIONSTOTXNRESPONSEERRORS]
+});
+
+protocol!(AddPartitionsToTxnResponseError => {
+    topic : {hf_kafka_topic_name : String, ETT_ADDPARTITIONSTOTXNRESPONSEERROR_TOPIC},
+    partition_errors : [AddPartitionsToTxnResponsePartitionError ETT_ADDPARTITIONSTOTXNRESPONSEPARTITIONERRORS]
+});
+
+protocol!(AddPartitionsToTxnResponsePartitionError => {
+    partition : {hf_kafka_partition : i32},
+    error_code: {hf_kafka_error: i16}
+});
+
+//
+// ApiKey 25 (AddOffsetsToTxn)
+//
+protocol!(AddOffsetsToTxnRequest => {
+    transactional_id : {hf_kafka_transactional_id : String, ETT_ADDOFFSETSTOTXNREQUEST_TRANSACTIONAL_ID},
+    producer_id : {hf_kafka_producer_id : i64},
+    producer_epoch : {hf_kafka_producer_epoch : i16},
+    group_id : {hf_kafka_group_id : String, ETT_ADDOFFSETSTOTXNREQUEST_GROUP_ID}
+});
+
+protocol!(AddOffsetsToTxnResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    error_code: {hf_kafka_error: i16}
+});
+
+//
+// ApiKey 26 (EndTxn)
+//
+protocol!(EndTxnRequest => {
+    transactional_id : {hf_kafka_transactional_id : String, ETT_ADDOFFSETSTOTXNREQUEST_TRANSACTIONAL_ID},
+    producer_id : {hf_kafka_producer_id : i64},
+    producer_epoch : {hf_kafka_producer_epoch : i16},
+    transaction_result : {hf_kafka_transaction_result : bool}
+});
+
+protocol!(EndTxnResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    error_code: {hf_kafka_error: i16}
+});

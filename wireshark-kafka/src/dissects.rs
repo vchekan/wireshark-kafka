@@ -149,6 +149,14 @@ extern "C" fn dissect_kafka(
                 16 => { /* ListGroups Request is empty */ },
                 17 => { protocol::SaslHandshakeRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
                 18 => { /* Request is empty (no fields) */ },
+                19 => { protocol::CreateTopicRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
+                20 => { protocol::DeleteTopicsRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
+                21 => { protocol::DeleteRecordsRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
+                22 => { protocol::InitProducerIdRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
+                23 => { protocol::OffsetForLeaderEpoch::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
+                24 => { protocol::AddPartitionsToTxnRequests::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
+                25 => { protocol::AddOffsetsToTxnRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
+                26 => { protocol::EndTxnRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
                 _ => {
                     println!("Dissection not implemented for api_key: {}", api_key);
                     
@@ -208,6 +216,14 @@ extern "C" fn dissect_kafka(
                         16 => {protocol::ListGroupsResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
                         17 => {protocol::SaslHandshakeResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
                         18 => {protocol::ApiVersionResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        19 => {protocol::CreateTopicResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        20 => {protocol::DeleteTopicsResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        21 => {protocol::DeleteRecordsResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        22 => {protocol::InitProducerIdResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        23 => {protocol::OffsetForLeaderEpochResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        24 => {protocol::AddPartitionsToTxnResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        25 => {protocol::AddOffsetsToTxnResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
+                        26 => {protocol::EndTxnResponse::dissect(tvb, pinfo, kafka_tree, offset, correlation.api_version);},
                         _ => {println!("Unknown api_key: {}", correlation.api_key)}
                     }
                 }

@@ -20,14 +20,14 @@
 - [x] ListGroups	16
 - [x] SaslHandshake	17
 - [x] ApiVersions	18
-- [ ] CreateTopics	19
-- [ ] DeleteTopics	20
-- [ ] DeleteRecords	21
-- [ ] InitProducerId	22
-- [ ] OffsetForLeaderEpoch	23
-- [ ] AddPartitionsToTxn	24
-- [ ] AddOffsetsToTxn	25
-- [ ] EndTxn	26
+- [x] CreateTopics	19
+- [x] DeleteTopics	20
+- [x] DeleteRecords	21
+- [x] InitProducerId	22
+- [x] OffsetForLeaderEpoch	23
+- [x] AddPartitionsToTxn	24
+- [x] AddOffsetsToTxn	25
+- [x] EndTxn	26
 - [ ] WriteTxnMarkers	27
 - [ ] TxnOffsetCommit	28
 - [ ] DescribeAcls	29

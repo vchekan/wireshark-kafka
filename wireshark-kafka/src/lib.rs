@@ -1,7 +1,7 @@
 #![feature(str_as_mut_ptr)]
 #![feature(const_fn)]
 #![feature(trace_macros)]
-#![recursion_limit="256"]
+#![recursion_limit="512"]
 #[macro_use] mod macros;
 mod dissects;
 mod fields;

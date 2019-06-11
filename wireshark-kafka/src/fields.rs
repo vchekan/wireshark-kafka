@@ -108,7 +108,42 @@ ett!(ETT_KAFKA, ett_broker_host, ETT_TOPICS, ETT_CLIENT_ID,
     ETT_LIST_GROUPS_GROUPS,
     ETT_SASL_HANDSHAKE_REQUEST_MECHANISM,
     ETT_SASL_HANDSHAKE_REQUEST_ENABLED_MECHANISMS,
-    ETT_SASL_HANDSHAKE_REQUEST_ENABLED_MECHANISM
+    ETT_SASL_HANDSHAKE_REQUEST_ENABLED_MECHANISM,
+    ETT_CREATE_TOPIC_REQUEST,
+    ETT_CREATE_TOPIC_REQUEST_TOPIC,
+    ETT_REPLICA_ASSIGNMENT,
+    ETT_CREATE_TOPIC_REPLICAS,
+    ETT_CREATE_TOPIC_CONFIG,
+    ETT_CREATE_TOPIC_CONFIG_NAME,
+    ETT_CREATE_TOPIC_CONFIG_VALUE,
+    ETT_CREATE_TOPIC_ERROR,
+    ETT_CREATE_TOPIC_ERROR_MESSAGE,
+    ETT_DELETE_TOPICS_REQUEST_TOPICS,
+    ETT_DELETE_TOPICS_REQUEST_TOPIC,
+    ETT_DELETE_TOPICS_ERROR_CODES,
+    ETT_DELETE_TOPICS_RESPONSE_TOPIC,
+    ETT_DELETE_RECORDS_REQUEST_TOPICS,
+    ETT_DELETE_RECORDS_REQUEST_TOPIC,
+    ETT_DELETE_RECORDS_REQUEST_PARTITIONS,
+    ETT_DELETE_RECORDS_RESPONSE_TOPICS,
+    ETT_DELETE_RECORDS_RESPONSE_TOPIC,
+    ETT_DELETE_RECORDS_RESPONSE_PARTITIONS,
+    ETT_INIT_PRODUCER_ID_TRANSACTIONAL_ID,
+    ETT_OFFSET_FOR_LEADER_EPOCH_TOPICS,
+    ETT_OFFSET_FOR_LEADER_EPOCH_TOPIC,
+    ETT_OFFSET_FOR_LEADER_EPOCH,
+    ETT_OFFSET_FOR_LEADER_EPOCH_RESPONSE_TOPICS,
+    ETT_OFFSET_FOR_LEADER_EPOCH_RESPONSE_TOPIC,
+    ETT_OFFSET_FOR_LEADER_EPOCH_RESPONSE_PARTITIONS,
+    ETT_ADD_PARTITIONS_TO_TXN_REQUEST_TRANSACTIONAL_ID,
+    ETT_ADD_PARTITIONS_TO_TXN_REQUEST_TOPICS,
+    ETT_ADD_PARTITIONS_TO_TXN_REQUEST_TOPIC,
+    ETT_ADDPARTITIONSTOTXNREQUESTTOPIC,
+    ETT_ADDPARTITIONSTOTXNRESPONSEERRORS,
+    ETT_ADDPARTITIONSTOTXNRESPONSEERROR_TOPIC,
+    ETT_ADDPARTITIONSTOTXNRESPONSEPARTITIONERRORS,
+    ETT_ADDOFFSETSTOTXNREQUEST_TRANSACTIONAL_ID,
+    ETT_ADDOFFSETSTOTXNREQUEST_GROUP_ID
 );
 
 header_fields!(
@@ -116,7 +151,7 @@ header_fields!(
     {hf_kafka_error, "Error\0", "kafka.error\0", ftenum_FT_INT16, "Kafka broker error.\0", kafka_error_names},
     {hf_kafka_group_id, "Group Id\0", "kafka.group_id\0", "The unique group identifier.\0"},
     {hf_kafka_session_timeout, "Session timeout\0", "kafka.session_timeout\0", ftenum_FT_UINT32, "The coordinator considers the consumer dead if it receives no heartbeat after this timeout in ms.\0"},
-    {hf_kafka_offset, "Offset\0", "kafka.offset\0", ftenum_FT_UINT64, "Message offset to be committed\0"},
+    {hf_kafka_offset, "Offset\0", "kafka.offset\0", ftenum_FT_UINT64, "Message offset.\0"},
     {hf_kafka_controller_epoch, "Controller epoch\0", "kafka.controller_epoch\0", ftenum_FT_UINT32, "Controller epoch.\0"},
     {hf_kafka_leader, "Leader\0", "kafka.leader\0", ftenum_FT_UINT32, "The broker id for the leader.\0"},
     {hf_kafka_leader_epoch, "Leader epoch\0", "kafka.leader_epoch\0", ftenum_FT_UINT32, "Leader epoch\0"},
@@ -125,6 +160,8 @@ header_fields!(
     {hf_kafka_broker_epoch, "Broker epoch\0", "kafka.broker_id\0", ftenum_FT_UINT64, "The broker epoch.\0"},
     {hf_kafka_client_id, "Client Id\0", "kafka.client_id\0", "Client Id.\0"},
     {hf_kafka_client_host, "Client host\0", "kafka.client_host\0", "Client host.\0"},
+    {hf_kafka_error_message, "Error message\0", "kafka.error_message\0", "Response error message.\0"},
+    {hf_kafka_transactional_id, "Transaction Id\0", "kafka.transaction_id\0", "Transaction Id\0"},
 
     //
     {hf_kafka_node_id, "Node Id\0", "kafka.broker.node\0", ftenum_FT_INT32, "Broker node Id.\0"},
@@ -151,7 +188,7 @@ header_fields!(
     {hf_kafka_offline_replica, "Offline replicas\0", "kafka.offline_replica\0", ftenum_FT_INT32, "Offline replicas\0"},
     {hf_kafka_metadata_leader_epoch, "Leader epoch\0", "kafka.topic_metadata.leader_epoch\0", ftenum_FT_INT32, "If this and the broker config auto.create.topics.enable are true, topics that don't exist will be created by the broker.\0"},
     {hf_kafka_acks, "Acks\0", "kafka.acks\0", ftenum_FT_INT16, "Acks requested\0"},
-    {hf_kafka_timeout, "Timeout\0", "kafka.timeout\0", ftenum_FT_INT32, "Timeout (ms)\0"},
+    {hf_kafka_timeout, "Timeout\0", "kafka.timeout\0", ftenum_FT_UINT32, "Timeout (ms)\0"},
     // Record Batch
     {hf_kafka_recordbatch_segment_size, "Segment size\0", "kafka.recordbatch.segment_size\0", ftenum_FT_INT32, "Record batch segment size (bytes)\0"},
     {hf_kafka_recordbatch_baseoffset, "Base offset\0", "kafka.recordbatch.baseoffset\0", ftenum_FT_INT64, "Record batch base offset\0"},
@@ -173,7 +210,6 @@ header_fields!(
     {hf_kafka_messageset_attributes, "Attributes\0", "kafka.messageset.attributes\0", ftenum_FT_UINT8, "Record batch attributes\0"},
     {hf_kafka_recordbatch_timestamp, "Timestamp\0", "kafka.messageset.timestamp\0", ftenum_FT_ABSOLUTE_TIME|absolute_time_display_e_ABSOLUTE_TIME_UTC, "Message set timestamp\0"},
     //
-    {hf_kafka_transactional_id, "Transaction Id\0", "kafka.produce_request.transaction_id\0", "Produce Request transaction Id\0"},
     {hf_kafka_produce_response_baseoffset, "Base offset\0", "kafka.produce_response.baseoffset\0", ftenum_FT_UINT64, "Produce response base offset\0"},
     {hf_kafka_log_append_time, "Log append time\0", "kafka.produce_response.log_append_time\0", ftenum_FT_ABSOLUTE_TIME|absolute_time_display_e_ABSOLUTE_TIME_UTC, "Produce response log append time\0"},
     {hf_kafka_produce_log_start_offset, "Log start offset\0", "kafka.produce_response.log_start_offset\0", ftenum_FT_UINT64, "Earliest available offset.\0"},
@@ -244,7 +280,21 @@ header_fields!(
     {hf_kafka_describe_group_protocol, "Protocol\0", "kafka.describe_group.protocol\0", "The current group protocol (only provided if the group is Stable).\0"},
     {hf_kafka_sasl_auth_bytes, "Auth bytes\0", "kafka.sasl.auth_bytes\0", ftenum_FT_BYTES|field_display_e_BASE_NONE, ".\0"},
     {hf_kafka_sasl_mechanism, "SASL mechanism\0", "kafka.sasl.mechanism\0", "SASL Mechanism chosen by the client.\0"},
-    {hf_kafka_sasl_enabled_mechanism, "SASL enabled mechanism\0", "kafka.sasl.enabled_mechanism\0", "Array of mechanisms enabled in the server.\0"}
+    {hf_kafka_sasl_enabled_mechanism, "SASL enabled mechanism\0", "kafka.sasl.enabled_mechanism\0", "Array of mechanisms enabled in the server.\0"},
+    {hf_kafka_create_topic_num_partitions, "Number of partitions\0", "kafka.create_topic.num_partitions\0", ftenum_FT_INT32, "Number of partitions to be created. -1 indicates unset.\0"},
+    {hf_kafka_create_topic_replication_factor, "Replication factor\0", "kafka.create_topic.replication_factor\0", ftenum_FT_INT16, "Replication factor for the topic. -1 indicates unset.\0"},
+    {hf_kafka_create_topic_replicas, "Replicas\0", "kafka.create_topic.replicas\0", ftenum_FT_INT32, "The set of all nodes that should host this partition. The first replica in the list is the preferred leader.\0"},
+    {hf_kafka_create_topic_config_name, "Config name\0", "kafka.create_topic.config_name\0", "Configuration name.\0"},
+    {hf_kafka_create_topic_config_value, "Config value\0", "kafka.create_topic.config_value\0", "Configuration value.\0"},
+    {hf_kafka_create_topic_validate_only, "Validate only\0", "kafka.create_topic.validate_only\0", ftenum_FT_BOOLEAN, "If this is true, the request will be validated, but the topic won't be created.\0"},
+    //
+    {hf_kafka_transaction_timeout_ms, "Transaction timeout\0", "kafka.transaction_timeout\0", ftenum_FT_INT32, "The time in ms to wait for before aborting idle transactions sent by this producer.\0"},
+    {hf_kafka_producer_id, "Producer Id\0", "kafka.producer_id\0", ftenum_FT_UINT64, "Current producer id in use by the transactional id.\0"},
+    {hf_kafka_producer_epoch, "Producer epoch\0", "kafka.producer_epoch\0", ftenum_FT_UINT16, "Current epoch associated with the producer id.\0"},
+    //
+    {hf_kafka_offset_for_leader_epoch_epoch, "Leader epoch\0", "kafka.offset_for_leader_epoch.leader_epoch\0", ftenum_FT_UINT32, "The epoch to lookup an offset for.\0"},
+    {hf_kafka_offset_for_leader_epoch_current_epoch, "Current leader epoch\0", "kafka.offset_for_leader_epoch.current_leader_epoch\0", ftenum_FT_INT32, "The current leader epoch, if provided, is used to fence consumers/replicas with old metadata.\0"},
+    {hf_kafka_transaction_result, "Transaction result\0", "kafka.transcation_result\0", ftenum_FT_BOOLEAN, "Transaction result.\0"}
 );
 
 pub(crate) static mut hf_kafka_batch_compression: i32 = -1;
