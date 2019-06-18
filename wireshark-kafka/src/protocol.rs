@@ -845,3 +845,530 @@ protocol!(EndTxnResponse => {
     throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
     error_code: {hf_kafka_error: i16}
 });
+
+//
+// ApiKey 27 (WriteTxnMarkers)
+//
+protocol!(WriteTxnMarkersRequest => {
+    transaction_markers : [WriteTxnMarkersRequestTransactionMarkers ETT_WRITETXNMARKERS_TRANSACTION_MARKERS]
+});
+
+protocol!(WriteTxnMarkersRequestTransactionMarkers => {
+    producer_id : {hf_kafka_producer_id : i64},
+    producer_epoch : {hf_kafka_producer_epoch : i16},
+    transaction_result : {hf_kafka_transaction_result : bool},
+    topics : [WriteTxnMarkersRequestTopic ETT_WRITETXNMARKERSREQUEST_TOPICS],
+    coordinator_epach : {hf_kafka_coordinator_epoch : i32}
+});
+
+protocol!(WriteTxnMarkersRequestTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_WRITETXNMARKERSREQUESTTOPIC_TOPIC},
+    partitions : [WriteTxnMarkersRequestTopicPartition ETT_WRITETXNMARKERSREQUESTTOPICPARTITIONS]
+});
+
+protocol!(WriteTxnMarkersRequestTopicPartition => {
+    partition : {hf_kafka_partition : i32}
+});
+
+// Response
+
+protocol!(WriteTxnMarkersResponse => {
+    transaction_markers : [WriteTxnMarkersResponseTxMarker ETT_WRITETXNMARKERSRESPONSE_TXMARKERS]
+});
+
+protocol!(WriteTxnMarkersResponseTxMarker => {
+    producer_id : {hf_kafka_producer_id : i64},
+    topics : [WriteTxnMarkersResponseTopic ETT_WRITETXNMARKERSRESPONSE_TOPIC]
+});
+
+protocol!(WriteTxnMarkersResponseTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_WRITETXNMARKERSRESPONSETOPICS_TOPICS},
+    partitions : [WriteTxnMarkersResponseTopicPartition ETT_WRITETXNMARKERSRESPONSETOPIC_PARTITIONS]
+});
+
+protocol!(WriteTxnMarkersResponseTopicPartition => {
+    partition : {hf_kafka_partition : i32},
+    error_code: {hf_kafka_error: i16}
+});
+
+//
+// ApiKey 28 (TxnOffsetCommit)
+//
+protocol!(TxnOffsetCommitRequest => {
+    transactional_id : {hf_kafka_transactional_id: String, ETT_TRANSACTIONAL_ID},
+    group_id : {hf_kafka_group_id : String, ETT_TXNOFFSETCOMMITREQUEST_GROUP_ID},
+    producer_id : {hf_kafka_producer_id : i64},
+    producer_epoch : {hf_kafka_producer_epoch : i16},
+    topics : [TxnOffsetCommitRequestTopic ETT_TXNOFFSETCOMMITREQUEST_TOPIC]
+});
+
+protocol!(TxnOffsetCommitRequestTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_TXNOFFSETCOMMITREQUESTTOPIC_TOPICS},
+    partitions : [TxnOffsetCommitRequestTopicPartition ETT_TXNOFFSETCOMMITREQUESTTOPIC_PARTITIONS]
+});
+
+protocol!(TxnOffsetCommitRequestTopicPartition => {
+    partition : {hf_kafka_partition : i32},
+    offset : {hf_kafka_offset : i64},
+    leader_epoch/2 : {hf_kafka_leader_epoch : i32},
+    metadata : {hf_kafka_offset : String, ETT_TXNOFFSETCOMMITREQUESTTOPICPARTITION_METADATA}
+});
+
+// Response
+protocol!(TxnOffsetCommitResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    topics : [TxnOffsetCommitResponseTopic ETT_TXNOFFSETCOMMITRESPONSE_TOPICS]
+});
+
+protocol!(TxnOffsetCommitResponseTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_TXNOFFSETCOMMITRESPONSETOPIC_TOPICS},
+    partitions : [TxnOffsetCommitResponsePartition ETT_TXNOFFSETCOMMITRESPONSE_PARTITIONS]
+});
+
+protocol!(TxnOffsetCommitResponsePartition => {
+    partition : {hf_kafka_partition : i32},
+    error_code: {hf_kafka_error: i16}
+});
+
+//
+// ApiKey 29 (DescribeAcls)
+protocol!(DescribeAclsRequest => {
+    resource_type : {hf_kafka_resource_type : u8 },
+    resource_name : {hf_kafka_resource_name : String, ETT_DESCRIBEACLSREQUEST_RESOURCE_NAME},
+    // Probably PatterType?
+    // https://github.com/apache/kafka/blob/c758122ce59674ec3e33618d896e4e5cdbb45e87/clients/src/main/java/org/apache/kafka/common/resource/PatternType.java#L32
+    resource_pattern_type_filter/1 : {hf_kafka_resource_pattern_type_filter : u8},
+    principal : {hf_kafka_principal : String, ETT_DESCRIBEACLSREQUEST_PRINCIPAL},
+    host : {hf_kafka_host : String, ETT_DESCRIBEACLSREQUEST_HOST},
+    operation : {hf_kafka_acl_operation : u8},
+    permission_type : {hf_kafka_acl_permission_type : u8}
+});
+
+// Response
+protocol!(DescribeAclsResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    error_code: {hf_kafka_error: i16},
+    error_message/1 : {hf_kafka_error_message : String, ETT_DESCRIBEACLSRESPONSE_ERROR_MESSAGE},
+    resources : [DescribeAclsResponseResource ETT_DESCRIBEACLSRESPONSE_RESOURCES]
+});
+
+protocol!(DescribeAclsResponseResource => {
+    resource_type : {hf_kafka_resource_type : u8 },
+    resource_name : {hf_kafka_resource_name : String, ETT_DESCRIBEACLSRESPONSE_RESOURCE_NAME},
+    resource_pattern_type/1 : {hf_kafka_resource_pattern_type : u8},
+    acls : [DescribeAclsResponseAcl ETT_DESCRIBEACLSRESPONSERESOURCE_ACLS]
+});
+
+protocol!(DescribeAclsResponseAcl => {
+    principal : {hf_kafka_principal : String, ETT_DESCRIBEACLSRESPONSEACL_PRINCIPAL},
+    host : {hf_kafka_host : String, ETT_DESCRIBEACLSRESPONSEACL_HOST},
+    operation : {hf_kafka_acl_operation : u8},
+    permission_type : {hf_kafka_acl_permission_type : u8}
+});
+
+//
+// ApiKey 30 (CreateAcls)
+//
+protocol!(CreateAclsRequest => {
+    creations : [CreateAclsRequestCreation ETT_CREATEACLSREQUEST_CREATIONS]
+});
+
+protocol!(CreateAclsRequestCreation => {
+    resource_type : {hf_kafka_resource_type : u8 },
+    resource_name : {hf_kafka_resource_name : String, ETT_DESCRIBEACLSRESPONSE_RESOURCE_NAME},
+    resource_pattern_type/1 : {hf_kafka_resource_pattern_type : u8},
+    principal : {hf_kafka_principal : String, ETT_DESCRIBEACLSRESPONSEACL_PRINCIPAL},
+    host : {hf_kafka_host : String, ETT_DESCRIBEACLSRESPONSEACL_HOST},
+    operation : {hf_kafka_acl_operation : u8},
+    permission_type : {hf_kafka_acl_permission_type : u8}
+});
+
+// Response
+protocol!(CreateAclsResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    creation_responses : [CreateAclsResponseCreationResponse ETT_CREATEACLSRESPONSE_CREATIONRESPONSE]
+});
+
+protocol!(CreateAclsResponseCreationResponse => {
+    error_code: {hf_kafka_error: i16},
+    error_message : {hf_kafka_error_message : String, ETT_CREATEACLSRESPONSECREATIONRESPONSE_ERROR_MESSAGE}
+});
+
+//
+// ApiKey 31 (DeleteAcls)
+//
+protocol!(DeleteAclsRequest => {
+    filters : [DeleteAclsRequestFilter ETT_DELETEACLSREQUEST_FILTERS]
+});
+
+protocol!(DeleteAclsRequestFilter => {
+    resource_type : {hf_kafka_resource_type : u8 },
+    resource_name : {hf_kafka_resource_name : String, ETT_DESCRIBEACLSRESPONSE_RESOURCE_NAME},
+    resource_pattern_type_filter/1 : {hf_kafka_resource_pattern_type_filter : u8},
+    principal : {hf_kafka_principal : String, ETT_DESCRIBEACLSRESPONSEACL_PRINCIPAL},
+    host : {hf_kafka_host : String, ETT_DESCRIBEACLSRESPONSEACL_HOST},
+    operation : {hf_kafka_acl_operation : u8},
+    permission_type : {hf_kafka_acl_permission_type : u8}
+});
+
+// Response
+protocol!(DeleteAclsResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    filter_responses : [DeleteAclsResponseFilterResponse ETT_DELETEACLSRESPONSE_FILTER_RESPONSE]
+});
+
+protocol!(DeleteAclsResponseFilterResponse => {
+    error_code: {hf_kafka_error: i16},
+    error_message : {hf_kafka_error_message : String, ETT_DELETEACLSRESPONSEFILTERRESPONSE_ERROR_MESSAGE},
+    resource_type : {hf_kafka_resource_type : u8 },
+    resource_name : {hf_kafka_resource_name : String, ETT_DELETEACLSRESPONSEFILTERRESPONSE_RESOURCE_NAME},
+    resource_pattern_type/1 : {hf_kafka_resource_pattern_type : u8},
+    principal : {hf_kafka_principal : String, ETT_DELETEACLSRESPONSEFILTERRESPONSE_PRINCIPAL},
+    host : {hf_kafka_host : String, ETT_DELETEACLSRESPONSEFILTERRESPONSE_HOST},
+    operation : {hf_kafka_acl_operation : u8},
+    permission_type : {hf_kafka_acl_permission_type : u8}
+});
+
+//
+// ApiKey 32 (DescribeConfigs)
+//
+protocol!(DescribeConfigsRequest => {
+    resources : [DescribeConfigsRequestResource ETT_DESCRIBECONFIGSREQUESTRESOURCES],
+    include_synonyms/1 : {hf_kafka_include_synonymous : bool}
+});
+
+protocol!(DescribeConfigsRequestResource => {
+    resource_type : {hf_kafka_resource_type : u8 },
+    resource_name : {hf_kafka_resource_name : String, ETT_DESCRIBECONFIGSREQUESTRESOURCE_RESOURCE_NAME},
+    config_name : {hf_kafka_config_name : String, ETT_DESCRIBECONFIGSREQUESTRESOURCE_CONFIG_NAME}
+});
+
+// Response
+protocol!(DescribeConfigsResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    resources : [DescribeConfigsResponseResource ETT_DESCRIBECONFIGSRESPONSE_RESOURCES]
+});
+
+protocol!(DescribeConfigsResponseResource => {
+    error_code: {hf_kafka_error: i16},
+    error_message : {hf_kafka_error_message : String, ETT_DESCRIBECONFIGSRESPONSERESOURCE_ERROR_MESSAGE},
+    resource_type : {hf_kafka_resource_type : u8 },
+    resource_name : {hf_kafka_resource_name : String, ETT_DESCRIBECONFIGSRESPONSERESOURCE_RESOURCE_NAME},
+    config_entries : [DescribeConfigsResponseResourceConfigEntry ETT_DESCRIBECONFIGSRESPONSERESOURCE_CONFIG_ENTRIES]
+});
+
+protocol!(DescribeConfigsResponseResourceConfigEntry => {
+    config_name : {hf_kafka_config_name : String, ETT_DESCRIBECONFIGSRESPONSERESOURCECONFIGENTRY_NAME },
+    config_value : {hf_kafka_config_value : String, ETT_DESCRIBECONFIGSRESPONSERESOURCECONFIGENTRY_VALUE },
+    read_only : {hf_kafka_config_read_only : bool},
+    is_default/(-1) : {hf_kafka_config_is_default : bool},
+    config_source/1 : {hf_kafka_config_source : u8},
+    is_sensitive : {hf_kafka_config_is_sensitive : bool},
+    config_synonyms/1 : [DescribeConfigsResponseSynonym ETT_DESCRIBECONFIGSRESPONSE_SYNONYMS]
+});
+
+protocol!(DescribeConfigsResponseSynonym => {
+    config_name : {hf_kafka_config_name : String, ETT_DESCRIBECONFIGSRESPONSESYNONYM_NAME },
+    config_value : {hf_kafka_config_value : String, ETT_DESCRIBECONFIGSRESPONSESYNONYM_VALUE },
+    config_source : {hf_kafka_config_source : u8}
+});
+
+//
+// ApiKey 33 (AlterConfigs)
+//
+protocol!(AlterConfigsRequest => {
+    resources : [AlterConfigsRequestResource ETT_ALTERCONFIGSREQUEST_RESOURCES],
+    validate_only : {hf_kafka_config_validate_only : bool}
+});
+
+protocol!(AlterConfigsRequestResource => {
+    resource_type : {hf_kafka_resource_type : u8 },
+    resource_name : {hf_kafka_resource_name : String, ETT_DESCRIBECONFIGSRESPONSERESOURCE_RESOURCE_NAME},
+    config_entries : [AlterConfigsRequestConfigEntry ETT_ALTERCONFIGSREQUEST_CONFIG_ENTRY]
+});
+
+protocol!(AlterConfigsRequestConfigEntry => {
+    config_name : {hf_kafka_config_name : String, ETT_ALTERCONFIGSREQUESTCONFIGENTRY_NAME },
+    config_value : {hf_kafka_config_value : String, ETT_ALTERCONFIGSREQUESTCONFIGENTRY_VALUE }
+});
+
+// Response
+protocol!(AlterConfigsResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    resources : [AlterConfigsResponseResource ETT_ALTERCONFIGSRESPONSE_RESOURCES]
+});
+
+protocol!(AlterConfigsResponseResource => {
+    error_code: {hf_kafka_error: i16},
+    error_message : {hf_kafka_error_message : String, ETT_ALTERCONFIGSRESPONSERESOURCE_ERROR_MESSAGE},
+    resource_type : {hf_kafka_resource_type : u8 },
+    resource_name : {hf_kafka_resource_name : String, ETT_ALTERCONFIGSRESPONSERESOURCE_RESOURCE_NAME}
+});
+
+//
+// ApiKey 34 (AlterReplicaLogDirs)
+//
+protocol!(AlterReplicaLogDirsRequest => {
+    log_dirs : [AlterReplicaLogDirsRequestItem ETT_ALTERREPLICALOGDIRSREQUEST_ITEMS]
+});
+
+protocol!(AlterReplicaLogDirsRequestItem => {
+    log_dir : {hf_kafka_log_dir : String, ETT_ALTERREPLICALOGDIRSREQUESTITEM_LOG_DIR},
+    topics : [AlterReplicaLogDirsRequestItemTopic ETT_ALTERREPLICALOGDIRSREQUESTITEM_TOPICS]
+});
+
+protocol!(AlterReplicaLogDirsRequestItemTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_ALTERREPLICALOGDIRSREQUESTITEMTOPIC_TOPIC},
+    partitions : [AlterReplicaLogDirsRequestItemTopicPartition ETT_ALTERREPLICALOGDIRSREQUESTITEMTOPIC_PARTITIONS]
+});
+
+protocol!(AlterReplicaLogDirsRequestItemTopicPartition => {
+    partition : {hf_kafka_partition : i32}
+});
+
+// Response
+protocol!(AlterReplicaLogDirsResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    topics : [AlterReplicaLogDirsResponseTopic ETT_ALTERREPLICALOGDIRSRESPONSE_TOPICS]
+});
+
+protocol!(AlterReplicaLogDirsResponseTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_ALTERREPLICALOGDIRSRESPONSETOPIC_TOPICS},
+    partitions : [AlterReplicaLogDirsResponseTopicPartition ETT_ALTERREPLICALOGDIRSRESPONSETOPIC_PARTITIONS]
+});
+
+protocol!(AlterReplicaLogDirsResponseTopicPartition => {
+    partition : {hf_kafka_partition : i32},
+    error_code: {hf_kafka_error: i16}
+});
+
+//
+// ApiKey 35 (DescribeLogDirs)
+//
+protocol!(DescribeLogDirsRequest => {
+    topics : [DescribeLogDirsTopic ETT_DESCRIBELOGDIRS_TOPICS]
+});
+
+protocol!(DescribeLogDirsTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_DESCRIBELOGDIRSTOPIC_TOPIC},
+    partitions : [DescribeLogDirsTopicPartition ETT_DESCRIBELOGDIRSTOPIC_PARTITIONS]
+});
+
+protocol!(DescribeLogDirsTopicPartition => {
+    partition : {hf_kafka_partition : i32}
+});
+
+// Response
+protocol!(DescribeLogDirsResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    log_dirs : [DescribeLogDirsResponseLogDir ETT_DESCRIBELOGDIRSRESPONSE_LOG_DIR]
+});
+
+protocol!(DescribeLogDirsResponseLogDir => {
+    error_code: {hf_kafka_error: i16},
+    log_dir : {hf_kafka_log_dir : String, ETT_DESCRIBELOGDIRSRESPONSELOGDIR_LOG_DIR},
+    topics : [DescribeLogDirsResponseLogDirTopic ETT_DESCRIBELOGDIRSRESPONSELOGDIR_TOPICS]
+});
+
+protocol!(DescribeLogDirsResponseLogDirTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_DESCRIBELOGDIRSRESPONSELOGDIRTOPIC_TOPIC},
+    partitions : [DescribeLogDirsResponseLogDirTopicPartition ETT_DESCRIBELOGDIRSRESPONSELOGDIRTOPIC_PARTITIONS]
+});
+
+protocol!(DescribeLogDirsResponseLogDirTopicPartition => {
+    partition : {hf_kafka_partition : i32},
+    size : {hf_kafka_log_dir_size : i64},
+    offset_lag : {hf_kafka_log_dir_offset_lag : i64},
+    is_future : {hf_kafka_log_dir_is_future : bool}
+});
+
+//
+// ApiKey 36 (SaslAuthenticate)
+//
+protocol!(SaslAuthenticateRequest => {
+    sasl_auth_bytes : {dissect_bytes(hf_kafka_sasl_auth_bytes)}
+});
+
+// Response
+protocol!(SaslAuthenticateResponse => {
+    error_code: {hf_kafka_error: i16},
+    error_message : {hf_kafka_error_message : String, ETT_SASLAUTHENTICATERESPONSE_ERROR_MESSAGE},
+    sasl_auth_bytes : {dissect_bytes(hf_kafka_sasl_auth_bytes)},
+    session_lifetime_ms/1 : {hf_kafka_sasl_session_lifetime_ms : i64}
+});
+
+//
+// ApiKey 37 (CreatePartitions)
+//
+protocol!(CreatePartitionsRequest => {
+    topic_partitions : [CreatePartitionsRequestTopic ETT_CREATEPARTITIONSREQUEST_TOPICS],
+    timeout : {hf_kafka_create_partitions_timeout : i32},
+    validate_only : {hf_kafka_create_partitions_validate_only : bool}
+});
+
+protocol!(CreatePartitionsRequestTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_CREATEPARTITIONSREQUESTTOPIC_TOPIC},
+    new_partitions_count : {hf_kafka_create_topics_count : i32},
+    assignment : [CreatePartitionsRequestTopicAssignment ETT_CREATEPARTITIONSREQUESTTOPIC_ASSIGNMENTS]
+});
+
+protocol!(CreatePartitionsRequestTopicAssignment => {
+    broker : {hf_kafka_create_partitions_broker : i32}
+});
+
+// Response
+protocol!(CreatePartitionsResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    topic_errors : [CreatePartitionsResponseTopicError ETT_CREATEPARTITIONSRESPONSE_TOPIC_ERRORS]
+});
+
+protocol!(CreatePartitionsResponseTopicError => {
+    topic : {hf_kafka_topic_name : String, ETT_CREATEPARTITIONSRESPONSETOPICERROR_TOPICS},
+    error_code: {hf_kafka_error: i16},
+    error_message : {hf_kafka_error_message : String, ETT_CREATEPARTITIONSRESPONSETOPICERROR_ERROR_MESSAGE}
+});
+
+//
+// ApiKey 38 (CreateDelegationToken)
+//
+protocol!(CreateDelegationTokenRequest => {
+    renewers : [CreateDelegationTokenRequestRenewer ETT_CREATEDELEGATIONTOKENREQUEST_RENEWER],
+    max_life_time : {hf_kafka_delegation_token_max_life_time : i64}
+});
+
+protocol!(CreateDelegationTokenRequestRenewer => {
+    principal_type : {hf_kafka_delegation_token_principal_type : String, ETT_CREATEDELEGATIONTOKENREQUESTRENEWER_PRINCIPAL_TYPE},
+    name : {hf_kafka_delegation_token_name : String, ETT_CREATEDELEGATIONTOKENREQUESTRENEWER_NAME}
+});
+
+// Response
+protocol!(CreateDelegationTokenResponse => {
+    error_code: {hf_kafka_error: i16},
+    owner_principal_type : {hf_kafka_delegation_token_principal_type : String, ETT_CREATEDELEGATIONTOKENRESPONSE_OWNER_PRINCIPAL_TYPE},
+    owner_name : {hf_kafka_delegation_token_name : String, ETT_CREATEDELEGATIONTOKENRESPONSE_OWNER_NAME},
+    issue_timestamp : {hf_kafka_delegation_token_issue_timestamp : i64},
+    expiry_timestamp : {hf_kafka_delegation_token_expiry_timestamp : i64},
+    max_timestamp : {hf_kafka_delegation_token_max_timestamp : i64},
+    token_id : {hf_kafka_delegation_token_token_id : String, ETT_CREATEDELEGATIONTOKENRESPONSE_TOKEN_ID},
+    hmac : {dissect_bytes(hf_kafka_delegation_token_hmac)},
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32}
+});
+
+//
+// ApiKey 39 (RenewDelegationToken)
+//
+protocol!(RenewDelegationTokenRequest => {
+    hmac : {dissect_bytes(hf_kafka_delegation_token_hmac)},
+    renew_time_period : {hf_kafka_delegation_token_renew_time_period : i64}
+});
+
+protocol!(RenewDelegationTokenResponse => {
+    error_code: {hf_kafka_error: i16},
+    expiry_timestamp : {hf_kafka_delegation_token_expiry_timestamp : i64},
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32}
+});
+
+//
+// ApiKey 40 (ExpireDelegationToken)
+//
+protocol!(ExpireDelegationTokenRequest => {
+    hmac : {dissect_bytes(hf_kafka_delegation_token_hmac)},
+    expiry_time_period : {hf_kafka_delegation_token_expiry_time_period : i64}
+});
+
+protocol!(ExpireDelegationTokenResponse => {
+    error_code: {hf_kafka_error: i16},
+    expiry_timestamp : {hf_kafka_delegation_token_expiry_timestamp : i64},
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32}
+});
+
+//
+// ApiKey 41 (DescribeDelegationToken)
+//
+protocol!(DescribeDelegationTokenRequest => {
+    owners : [DescribeDelegationTokenRequestOwner ETT_DESCRIBEDELEGATIONTOKENREQUES_OWNERS]
+});
+
+protocol!(DescribeDelegationTokenRequestOwner => {
+    principal_type : {hf_kafka_delegation_token_principal_type : String, ETT_DESCRIBEDELEGATIONTOKENREQUESTOWNER_PRINCIPAL_TYPE},
+    name : {hf_kafka_delegation_token_name : String, ETT_DESCRIBEDELEGATIONTOKENREQUESTOWNER_NAME}
+});
+
+// Response
+protocol!(DescribeDelegationTokenResponse => {
+    error_code: {hf_kafka_error: i16},
+    token_details : [DescribeDelegationTokenResponseTokenDetail ETT_DESCRIBEDELEGATIONTOKENRESPONSE_TOKEN_DETAILS],
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32}
+});
+
+protocol!(DescribeDelegationTokenResponseTokenDetail => {
+    principal_type : {hf_kafka_delegation_token_principal_type : String, ETT_DESCRIBEDELEGATIONTOKENREQUESTOWNER_PRINCIPAL_TYPE},
+    name : {hf_kafka_delegation_token_name : String, ETT_DESCRIBEDELEGATIONTOKENREQUESTOWNER_NAME},
+    issue_timestamp : {hf_kafka_delegation_token_issue_timestamp : i64},
+    expiry_timestamp : {hf_kafka_delegation_token_expiry_timestamp : i64},
+    max_timestamp : {hf_kafka_delegation_token_max_timestamp : i64},
+    token_id : {hf_kafka_delegation_token_token_id : String, ETT_DESCRIBEDELEGATIONTOKENRESPONSETOKENDETAIL_TOKEN_ID},
+    hmac : {dissect_bytes(hf_kafka_delegation_token_hmac)},
+    renewers : [DescribeDelegationTokenResponseTokenDetailRenewer ETT_DESCRIBEDELEGATIONTOKENRESPONSETOKENDETAIL_RENEWERS]
+});
+
+protocol!(DescribeDelegationTokenResponseTokenDetailRenewer => {
+    principal_type : {hf_kafka_delegation_token_principal_type : String, ETT_DESCRIBEDELEGATIONTOKENRESPONSETOKENDETAILRENEWER_PRINCIPAL_TYPE},
+    name : {hf_kafka_delegation_token_name : String, ETT_DESCRIBEDELEGATIONTOKENRESPONSETOKENDETAILRENEWER_NAME}
+});
+
+//
+// ApiKey 42 (DeleteGroups)
+//
+protocol!(DeleteGroupsRequest => {
+    groups : [DeleteGroupsGroup ETT_DELETEGROUPS_GROUPS]
+});
+
+protocol!(DeleteGroupsGroup => {
+    group : {hf_kafka_group_id : String, ETT_DELETEGROUPSGROUP_GROUP}
+});
+
+// Response
+protocol!(DeleteGroupsResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    group_error_codes : [DeleteGroupsResponseErrorCode ETT_DELETEGROUPSRESPONSE_ERROR_CODES]
+});
+
+protocol!(DeleteGroupsResponseErrorCode => {
+    group_id : {hf_kafka_group_id : String, ETT_DELETEGROUPSRESPONSEERRORCODE_GROUP_ID},
+    error_code: {hf_kafka_error: i16}
+});
+
+//
+// ApiKey 43 (ElectPreferredLeaders)
+//
+protocol!(ElectPreferredLeadersRequest => {
+    topic_partitions : [ElectPreferredLeadersRequestTopic ETT_ELECTPREFERREDLEADERSREQUEST_TOPICS],
+    timeout_ms : {hf_kafka_timeout : i32}
+});
+
+protocol!(ElectPreferredLeadersRequestTopic => {
+    topic : {hf_kafka_topic_name : String, ETT_ELECTPREFERREDLEADERSREQUESTTOPIC_TOPIC},
+    partitions : [ElectPreferredLeadersRequestTopicPartition ETT_ELECTPREFERREDLEADERSREQUESTTOPICPARTITIONS]
+});
+
+protocol!(ElectPreferredLeadersRequestTopicPartition => {
+    partition : {hf_kafka_partition : i32}
+});
+
+// Response
+protocol!(ElectPreferredLeadersResponse => {
+    throttle_time_ms : {hf_kafka_throttle_time_ms: i32},
+    replica_election_results : [ElectPreferredLeadersResponseReplicaElectionResult ETT_ELECTPREFERREDLEADERSRESPONSE_REPLICA_ELECTION_RESULTS]
+});
+
+protocol!(ElectPreferredLeadersResponseReplicaElectionResult => {
+    topic : {hf_kafka_topic_name : String, ETT_ELECTPREFERREDLEADERSRESPONSEREPLICAELECTIONRESULT_TOPIC},
+    partition_results : [ElectPreferredLeadersResponsePartitionResult ETT_ELECTPREFERREDLEADERSRESPONSE_PARTITION_RESULTS]
+});
+
+protocol!(ElectPreferredLeadersResponsePartitionResult => {
+    partition_id : {hf_kafka_partition : i32},
+    error_code: {hf_kafka_error: i16},
+    error_message : {hf_kafka_error_message : String, ETT_ELECTPREFERREDLEADERSRESPONSEPARTITIONRESULT_ERROR_MESSAGE}
+});

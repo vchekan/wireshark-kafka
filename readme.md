@@ -28,20 +28,20 @@
 - [x] AddPartitionsToTxn	24
 - [x] AddOffsetsToTxn	25
 - [x] EndTxn	26
-- [ ] WriteTxnMarkers	27
-- [ ] TxnOffsetCommit	28
-- [ ] DescribeAcls	29
-- [ ] CreateAcls	30
-- [ ] DeleteAcls	31
-- [ ] DescribeConfigs	32
-- [ ] AlterConfigs	33
-- [ ] AlterReplicaLogDirs	34
-- [ ] DescribeLogDirs	35
-- [ ] SaslAuthenticate	36
-- [ ] CreatePartitions	37
-- [ ] CreateDelegationToken	38
-- [ ] RenewDelegationToken	39
-- [ ] ExpireDelegationToken	40
-- [ ] DescribeDelegationToken	41
-- [ ] DeleteGroups	42
-- [ ] ElectPreferredLeaders	43
+- [x] WriteTxnMarkers	27
+- [x] TxnOffsetCommit	28
+- [x] DescribeAcls	29
+- [x] CreateAcls	30
+- [x] DeleteAcls	31
+- [x] DescribeConfigs	32
+- [x] AlterConfigs	33
+- [x] AlterReplicaLogDirs	34
+- [x] DescribeLogDirs	35
+- [x] SaslAuthenticate	36
+- [x] CreatePartitions	37
+- [x] CreateDelegationToken	38
+- [x] RenewDelegationToken	39
+- [x] ExpireDelegationToken	40
+- [x] DescribeDelegationToken	41
+- [x] DeleteGroups	42
+- [x] ElectPreferredLeaders	43
