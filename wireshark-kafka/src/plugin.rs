@@ -1,3 +1,4 @@
+/// Main wireshark entry
 use wireshark_ffi::bindings::*;
 use crate::dissects::{dissect_kafka_tcp, Correlation};
 use crate::fields::*;

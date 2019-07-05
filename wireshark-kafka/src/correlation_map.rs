@@ -1,3 +1,14 @@
+/// Kafka response version nor api key is presented in response and is the same as request. In order to decode
+/// response with proper api key and version, we need to store what was the request version. This
+/// info is stored in HashMap which in turn is stored in wireshark's "conversation" (tcp connection).
+///
+/// Wireshark implements custom memory allocator. When file is reloaded, all memory in file allocator
+/// is zeroed. Plugin should check if user data is null, and if so, "allocate" new data structure
+/// in such allocator.
+/// Rust potentially can use custom allocator, but it is completly incompatible with "fire and forget"
+/// design of wireshark's memory. Solution is to create raw pointer to `*mut HashMap` and register
+/// deallocation callback with wireshark runtime.
+
 use wireshark_ffi::bindings::*;
 use crate::plugin::PROTO_KAFKA;
 use std::collections::HashMap;
@@ -33,19 +44,12 @@ pub(crate) fn find_correlation(conversation: *mut conversation_t, corr: i32) -> 
 }
 
 unsafe extern "C" fn deallocate(
-    arg1: *mut wmem_allocator_t,
-    arg2: wmem_cb_event_t,
+    _arg1: *mut wmem_allocator_t,
+    _arg2: wmem_cb_event_t,
     arg3: *mut ::std::os::raw::c_void,
 ) -> gboolean {
-    match arg2 {
-        _wmem_cb_event_t_WMEM_CB_FREE_EVENT => println!("Event: WMEM_CB_FREE_EVENT"),
-        _wmem_cb_event_t_WMEM_CB_DESTROY_EVENT => println!("Event: WMEM_CB_DESTROY_EVENT"),
-        _ => println!("Event: unknown {}", arg2),
-    }
-
-    let map: *mut HashMap<i32,Correlation> = (arg3 as *mut HashMap<i32,Correlation>);
-    dbg!(map);
-    if map != 0 as *mut HashMap<i32,Correlation> {
+    if arg3 != 0 as *mut c_void {
+        let map: *mut HashMap<i32,Correlation> = (arg3 as *mut HashMap<i32,Correlation>);
         map.drop_in_place();
     }
 

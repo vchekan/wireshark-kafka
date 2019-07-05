@@ -174,10 +174,7 @@ extern "C" fn dissect_kafka(
                 41 => { protocol::DescribeDelegationTokenRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
                 42 => { protocol::DeleteGroupsRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
                 43 => { protocol::ElectPreferredLeadersRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version);},
-                _ => {
-                    println!("Dissection not implemented for api_key: {}", api_key);
-                    
-                }
+                _ => {println!("Dissection not implemented for api_key: {}", api_key);}
             }
         } else {
             //
