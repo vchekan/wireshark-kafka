@@ -1,10 +1,11 @@
 use wireshark_ffi::bindings::*;
-use crate::dissects::dissect_kafka_tcp;
+use crate::dissects::{dissect_kafka_tcp, Correlation};
 use crate::fields::*;
 use crate::utils::i8_str;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use std::os::raw::{c_char, c_int, c_void};
+use std::collections::HashMap;
 
 #[no_mangle]
 #[used]
@@ -44,10 +45,6 @@ extern "C" fn proto_register_kafka() {
         hf.append(&mut hf2());
         proto_register_field_array(*PROTO_KAFKA.lock().unwrap(), hf.as_mut_ptr(), hf.len() as i32);
 
-        // Register RecordBatch attributes fields
-        //let mut hf = hf2();
-        //proto_register_field_array(*PROTO_KAFKA.lock().unwrap(), hf.as_mut_ptr(), hf.len() as i32);
-
         // Register ett
         let mut ett = create_ett();
         proto_register_subtree_array(ett.as_ptr(), ett.len() as i32);
@@ -60,3 +57,4 @@ extern "C" fn proto_reg_handoff_kafka() {
         dissector_add_uint(i8_str("tcp.port\0"), KAFKA_PORT, kafka_handle);
     }
 }
+

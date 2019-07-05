@@ -2,6 +2,6 @@
 (+) Nicer String tree (size and string as subitems)
 (+) Generator
 (+) Request-response correlation
-* Free heap: wmem_register_callback(wmem_file_scope())
+(+) Free heap: wmem_register_callback(wmem_file_scope())
 * Integrate with Gitlab CI
 * Rewrite as procedural macro?

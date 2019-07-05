@@ -75,7 +75,7 @@ extern "C" fn dissect_kafka(
 
             if (*(*pinfo).fd).flags.visited() == 0 {
                 insert_correlation(find_or_create_conversation(pinfo), correlationId, Correlation { api_key, api_version });
-                println!("correlation_map << correlationId:{} -> (api_key:{}, api_version:{})", correlationId, api_key, api_version)
+                //println!("correlation_map << correlationId:{} -> (api_key:{}, api_version:{})", correlationId, api_key, api_version)
             }
 
             col_add_fstr(
@@ -197,7 +197,7 @@ extern "C" fn dissect_kafka(
             match find_correlation(find_or_create_conversation(pinfo), correlationId) { //correlation_map.lock().unwrap().get(&(conversation,correlationId)) {
                 None => println!("Can not find matching request for response (correlationId={})", correlationId),
                 Some(correlation) => {
-                    println!("correlation_map[{}] >> (api_key:{}, api_version:{})", correlationId, correlation.api_key, correlation.api_version);
+                    //println!("correlation_map[{}] >> (api_key:{}, api_version:{})", correlationId, correlation.api_key, correlation.api_version);
                     col_add_fstr(
                         (*pinfo).cinfo,
                         COL_INFO as i32,
@@ -341,13 +341,13 @@ pub(crate) fn dissect_record_batch(
     unsafe {
         // TODO: validate segment size boundaries
         let segment_size = tvb_get_ntohl(tvb, offset);
-        println!("segment_size: {}", segment_size);
+        //println!("segment_size: {}", segment_size);
         proto_tree_add_item(tree, hf_kafka_recordbatch_segment_size, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         if segment_size > 0 {
             let magic = tvb_get_guint8(tvb, offset + 8 + 4 + 4);
-            println!("magic: {}", magic);
+            //println!("magic: {}", magic);
 
             if magic == 1 {
                 offset = dissect_message_set_v1(tree, tvb, pinfo, offset);
