@@ -5,4 +5,6 @@ rust-latest:
   stage: build
   image: rust:latest
   script:
+    - apt update
+    - apt install -y libclang-dev wireshark-dev clang
     - (cd wireshark-kafka && cargo build --verbose --release)
