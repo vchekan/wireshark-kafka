@@ -334,6 +334,7 @@ pub(crate) fn dissect_record_batch(
     tvb: *mut tvbuff_t,
     pinfo: *mut packet_info,
     mut offset: i32,
+    api_version: i16,
 ) -> i32 {
     unsafe {
         // TODO: validate segment size boundaries
@@ -349,7 +350,6 @@ pub(crate) fn dissect_record_batch(
             if magic == 1 {
                 offset = dissect_message_set_v1(tree, tvb, pinfo, offset);
             }
-            /*
         else if magic == 2 {
             proto_tree_add_item(tree, hf_kafka_recordbatch_baseoffset, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
@@ -390,12 +390,14 @@ pub(crate) fn dissect_record_batch(
             proto_tree_add_item(tree, hf_kafka_recordbatch_base_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
-            // [Records]
+            let tree = proto_tree_add_subtree(tree, tvb, offset, -1, *ETT_RECORDBATCH_RECORDS.lock().unwrap(), 0 as *mut *mut _, i8_str("Records\0"));
+            // TODO: compression
+            offset = dissect_kafka_array(tvb, pinfo, tree, offset, api_version, dissect_record);
+            
         } else {
             // TODO: unknown magic
             println!("Unknown record set magic: {}", magic);
         }
-        */
             //offset += 10_000;
         }
     }
@@ -461,6 +463,118 @@ fn dissect_message_set_v1(tree: *mut proto_tree, tvb: *mut tvbuff_t, pinfo: *mut
     offset
 }
 
+fn dissect_record(
+    tvb: *mut tvbuff_t,
+    pinfo: *mut packet_info,
+    tree: *mut proto_tree,
+    mut offset: i32,
+    api_version: i16
+) -> i32 {
+    unsafe {
+        // TODO: set tvb limit to the `len`
+        let (len, mut varlen) = zigzag_i32(tvb, offset);
+        proto_tree_add_int(tree, hf_kafka_record_length, tvb, offset, varlen, len);
+        offset += varlen;
+
+        // Attributes are unused as of v2.3.0
+        let attributes = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_kafka_record_attributes, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        // The only zigzag 64 field
+        let (timestampDelta, varlen) = zigzag_i64(tvb, offset);
+        proto_tree_add_int64(tree, hf_kafka_record_timestamp_delta, tvb, offset, varlen, timestampDelta);
+        offset += varlen;
+
+        let (offsetDelta, varlen) = zigzag_i32(tvb, offset);
+        proto_tree_add_int(tree, hf_kafka_record_offset_delta, tvb, offset, varlen, offsetDelta);
+        offset += varlen;
+
+        let (keyLen, varlen) = zigzag_i32(tvb, offset);
+        proto_tree_add_int(tree, hf_kafka_record_key_len, tvb, offset, varlen, keyLen);
+        offset += varlen;
+        if keyLen > 0 {
+            proto_tree_add_item(tree, hf_kafka_message_set_record_key, tvb, offset, varlen, ENC_STR_HEX);
+            offset += keyLen;
+        }
+
+        let (valLen, varlen) = zigzag_i32(tvb, offset);
+        proto_tree_add_int(tree, hf_kafka_record_value_len, tvb, offset, varlen, valLen);
+        offset += varlen;
+        if valLen > 0 {
+            proto_tree_add_item(tree, hf_kafka_message_set_record_value, tvb, offset, valLen, ENC_STR_HEX);
+            offset += valLen;
+        }
+
+        let (headerCount, varlen) = zigzag_i32(tvb, offset);
+        proto_tree_add_int(tree, hf_kafka_record_header_count, tvb, offset, varlen, headerCount);
+        offset += varlen;
+        if headerCount > 0 {
+            for _ in 0..headerCount {
+                let (keyLen, varlen) = zigzag_i32(tvb, offset);
+                proto_tree_add_int(tree, hf_kafka_recordbatch_header_key_len, tvb, offset, varlen, keyLen);
+                offset += varlen;
+                if keyLen > 0 {
+                    proto_tree_add_item(tree, hf_kafka_recordbatch_header_key, tvb, offset, varlen, ENC_STR_HEX);
+                    offset += keyLen;
+                }
+
+                let (valLen, varlen) = zigzag_i32(tvb, offset);
+                proto_tree_add_int(tree, hf_kafka_recordbatch_header_value_len, tvb, offset, varlen, valLen);
+                offset += varlen;
+                if valLen > 0 {
+                    proto_tree_add_item(tree, hf_kafka_recordbatch_header_value, tvb, offset, valLen, ENC_STR_HEX);
+                    offset += valLen;
+                }
+            }
+        }
+
+        offset
+    }
+}
+
+/// Return (value, variable size)
+fn zigzag_i32(tvb: *mut tvbuff_t, start: i32) -> (i32, i32) {
+    unsafe {
+        let mut res = 0_u32;
+        let mut shift = 0;
+
+        for offset in 0..4 {
+            let i = tvb_get_guint8(tvb, start + offset);
+            res |= ((i & 0x7f) as u32) << shift;
+            if i & 0x80 == 0 {
+                let res = (res >> 1) ^ (-(res as i32 & 1)) as u32;
+                return (res as i32, offset + 1);
+            }
+            shift += 7;
+        }
+
+        // TODO: report boundary error. Use temp tvb with bound set?
+        (0, 4)
+    }
+}
+
+/// Return (value, variable size)
+fn zigzag_i64(tvb: *mut tvbuff_t, start: i32) -> (i64, i32) {
+    unsafe {
+        let mut res = 0_u64;
+        let mut shift = 0;
+
+        for offset in 0..9 {
+            let i = tvb_get_guint8(tvb, start + offset);
+            res |= ((i & 0x7f) as u64) << shift;
+            if i & 0x80 == 0 {
+                let res = (res >> 1) ^ (-(res as i64 & 1)) as u64;
+                return (res as i64, offset + 1);
+            }
+            shift += 7;
+        }
+
+        // TODO: report boundary error. Use temp tvb with bound set?
+        (0, 9)
+    }
+}
+
 fn api_key_to_str(api_key: u16) -> &'static str {
     if (api_key as usize) < api_keys.len() {
         api_keys[api_key as usize].1
@@ -468,3 +582,4 @@ fn api_key_to_str(api_key: u16) -> &'static str {
         "???"
     }
 }
+

@@ -244,7 +244,8 @@ ett!(ETT_KAFKA, ett_broker_host, ETT_TOPICS, ETT_CLIENT_ID,
     ETT_ELECTPREFERREDLEADERSRESPONSE_REPLICA_ELECTION_RESULTS,
     ETT_ELECTPREFERREDLEADERSRESPONSEREPLICAELECTIONRESULT_TOPIC,
     ETT_ELECTPREFERREDLEADERSRESPONSE_PARTITION_RESULTS,
-    ETT_ELECTPREFERREDLEADERSRESPONSEPARTITIONRESULT_ERROR_MESSAGE
+    ETT_ELECTPREFERREDLEADERSRESPONSEPARTITIONRESULT_ERROR_MESSAGE,
+    ETT_RECORDBATCH_RECORDS
 );
 
 header_fields!(
@@ -297,6 +298,7 @@ header_fields!(
     {hf_kafka_recordbatch_batchlength, "Batch length\0", "kafka.recordbatch.batchlength\0", ftenum_FT_INT32, "Record batch length\0"},
     {hf_kafka_recordbatch_magic, "Magic\0", "kafka.recordbatch.magic\0", ftenum_FT_UINT8, "Record batch magic\0"},
     {hf_kafka_recordbatch_crc, "Crc\0", "kafka.recordbatch.crc\0", ftenum_FT_UINT32|field_display_e_BASE_HEX, "Record batch CRC\0"},
+    // TODO: DefaultRecordBatch.java:93
     {hf_kafka_recordbatch_attributes, "Attributes\0", "kafka.recordbatch.attributes\0", ftenum_FT_UINT16, "Record batch attributes\0"},
     {hf_kafka_recordbatch_lastoffsetdelta, "Last offset delta\0", "kafka.recordbatch.lastoffsetdelta\0", ftenum_FT_INT32, "Record batch last offset delta\0"},
     {hf_kafka_recordbatch_firsttimestamp, "First timestamp\0", "kafka.recordbatch.firsttimestamp\0", ftenum_FT_INT64, "Record batch first timestamp\0"},
@@ -304,8 +306,24 @@ header_fields!(
     {hf_kafka_recordbatch_producer_id, "Producer Id\0", "kafka.recordbatch.producerid\0", ftenum_FT_INT64, "Record batch producer id\0"},
     {hf_kafka_recordbatch_producer_epoch, "Producer epoch\0", "kafka.recordbatch.producer_epoch\0", ftenum_FT_INT16, "Record batch producer epoch\0"},
     {hf_kafka_recordbatch_base_sequence, "Base sequence\0", "kafka.recordbatch.base_sequence\0", ftenum_FT_INT32, "Record batch base sequence\0"},
-    {hf_kafka_recordbatch_key, "Key\0", "kafka.record.key\0", ftenum_FT_BYTES|field_display_e_BASE_NONE, "Record key\0"},
-    {hf_kafka_recordbatch_value, "Value\0", "kafka.record.value\0", ftenum_FT_BYTES|field_display_e_SEP_SPACE, "Record value\0"},
+    {hf_kafka_recordbatch_key, "Key\0", "kafka.recordbatch.key\0", ftenum_FT_BYTES|field_display_e_BASE_NONE, "Record key\0"},
+    {hf_kafka_recordbatch_value, "Value\0", "kafka.recordbatch.value\0", ftenum_FT_BYTES|field_display_e_SEP_SPACE, "Record value\0"},
+    {hf_kafka_recordbatch_partition_leader_epoch, "Partition leader epoch\0", "kafka.recordbatch.partition_leader_epoch\0", ftenum_FT_INT32, "Record batch partition leader epoch\0"},
+
+    {hf_kafka_record_header_count, "Header count\0", "kafka.recordbatch.header.count\0", ftenum_FT_INT32, "Header count\0"},
+    {hf_kafka_recordbatch_header_key_len, "Header key length\0", "kafka.recordbatch.header.key_length\0", ftenum_FT_INT32, "Header key length\0"},
+    {hf_kafka_recordbatch_header_key, "Key\0", "kafka.recordbatch.header.key\0", ftenum_FT_BYTES|field_display_e_SEP_SPACE, "Header key\0"},
+    {hf_kafka_recordbatch_header_value_len, "Value length\0", "kafka.recordbatch.record.value_length\0", ftenum_FT_INT32, "Record value length\0"},
+    {hf_kafka_recordbatch_header_value, "Value\0", "kafka.recordbatch.header.value\0", ftenum_FT_BYTES|field_display_e_SEP_SPACE, "Header value\0"},
+    // Record
+    {hf_kafka_record_length, "Length\0", "kafka.recordbatch.record.length\0", ftenum_FT_INT32, "Record length\0"},
+    {hf_kafka_record_attributes, "Attributes\0", "kafka.recordbatch.record.attributes\0", ftenum_FT_UINT8, "Record attributes\0"},
+    {hf_kafka_record_timestamp_delta, "Timestamp delta\0", "kafka.recordbatch.record.timestamp_delta\0", ftenum_FT_INT64, "Record timestamp delta\0"},
+    {hf_kafka_record_offset_delta, "Offset delta\0", "kafka.recordbatch.record.offset_delta\0", ftenum_FT_INT32, "Record offset delta\0"},
+    {hf_kafka_record_key_len, "Key length\0", "kafka.recordbatch.record.key_length\0", ftenum_FT_INT32, "Record key length\0"},
+    {hf_kafka_record_value_len, "Value length\0", "kafka.recordbatch.record.value_length\0", ftenum_FT_INT32, "Record value length\0"},
+    {hf_kafka_message_set_record_key, "Key\0", "kafka.recordbatch.record.key\0", ftenum_FT_BYTES|field_display_e_SEP_SPACE, "Record key\0"},
+    {hf_kafka_message_set_record_value, "Value\0", "kafka.recordbatch.record.value\0", ftenum_FT_BYTES|field_display_e_SEP_SPACE, "Record value\0"},
     // MessageSet
     {hf_kafka_messageset_offset, "Offset\0", "kafka.messageset.offset\0", ftenum_FT_INT64, "Message set offset\0"},
     {hf_kafka_messageset_msg_size, "Message size\0", "kafka.messageset.message_size\0", ftenum_FT_INT32, "Message set message size\0"},
