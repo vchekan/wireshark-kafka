@@ -3,6 +3,7 @@
 (+) Generator
 (+) Request-response correlation
 (+) Free heap: wmem_register_callback(wmem_file_scope())
+(-) Rewrite as procedural macro?
 * Integrate with Gitlab CI
-* Rewrite as procedural macro?
+* Unit tests with TShark?
 * Compression
