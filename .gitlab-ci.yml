@@ -5,4 +5,4 @@ rust-latest:
   stage: build
   image: rust:latest
   script:
-    - cargo build --verbose
+    - (cd wireshark-kafka && cargo build --verbose --release)
