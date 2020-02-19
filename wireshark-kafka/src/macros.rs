@@ -163,10 +163,11 @@ macro_rules! _resolve_version {
         $api_version >= $from && api_version < $to
     };
     ($api_version:ident, $version:expr) => {
-        $api_version >= $version
-    };
-    ($api_version:ident,  (-$version:ident) ) => {
-        $api_version < $version
+        if $version >= 0 {
+            $api_version >= $version
+        } else {
+            $api_version <= $version
+        }
     };
     () => {true};
 }
