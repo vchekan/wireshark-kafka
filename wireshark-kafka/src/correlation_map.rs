@@ -35,7 +35,8 @@ pub(crate) fn find_correlation(conversation: *mut conversation_t, corr: i32) -> 
     unsafe {
         let mut data = conversation_get_proto_data(conversation, *PROTO_KAFKA.lock().unwrap());
         if data == 0 as *mut c_void {
-            unimplemented!();
+            //unimplemented!();
+            return None;
         } else {
             let map: &mut HashMap<i32,Correlation> = &mut *(data as *mut HashMap<i32,Correlation>);
             map.get(&corr)

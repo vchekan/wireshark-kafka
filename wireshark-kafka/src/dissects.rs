@@ -73,7 +73,8 @@ extern "C" fn dissect_kafka(
             let api_version = tvb_get_ntohs(tvb, offset + 2) as i16;
             let correlationId = tvb_get_ntohl(tvb, offset + 4) as i32;
 
-            if (*(*pinfo).fd).flags.visited() == 0 {
+            //if (*(*pinfo).fd).flags.visited() == 0 {
+            if (*(*pinfo).fd).visited() == 0 {
                 insert_correlation(find_or_create_conversation(pinfo), correlationId, Correlation { api_key, api_version });
                 //println!("correlation_map << correlationId:{} -> (api_key:{}, api_version:{})", correlationId, api_key, api_version)
             }
@@ -270,11 +271,13 @@ pub(crate) fn dissect_kafka_array(tvb: *mut tvbuff_t, pinfo: *mut packet_info, t
    dissector: (fn(*mut tvbuff_t, *mut packet_info, *mut proto_tree, i32, i16) -> i32)
 ) -> i32 {
     unsafe {
-        let count = tvb_get_ntohl(tvb, offset);
+        let count = tvb_get_ntohl(tvb, offset) as gint32;
         proto_tree_add_item(tree, hf_kafka_array_count, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        for _ in 0..count {
-            offset = dissector(tvb, pinfo, tree, offset, api_version);
+        if count != -1 {
+            for _ in 0..count {
+                offset = dissector(tvb, pinfo, tree, offset, api_version);
+            }
         }
     }
     offset
@@ -350,54 +353,54 @@ pub(crate) fn dissect_record_batch(
             if magic == 1 {
                 offset = dissect_message_set_v1(tree, tvb, pinfo, offset);
             }
-        else if magic == 2 {
-            proto_tree_add_item(tree, hf_kafka_recordbatch_baseoffset, tvb, offset, 8, ENC_BIG_ENDIAN);
-            offset += 8;
+            else if magic == 2 {
+                proto_tree_add_item(tree, hf_kafka_recordbatch_baseoffset, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_batchlength, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+                proto_tree_add_item(tree, hf_kafka_recordbatch_batchlength, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_partition_leader_epoch, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+                proto_tree_add_item(tree, hf_kafka_recordbatch_partition_leader_epoch, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_magic, tvb, offset, 1, ENC_NA);
-            offset += 1;
+                proto_tree_add_item(tree, hf_kafka_recordbatch_magic, tvb, offset, 1, ENC_NA);
+                offset += 1;
 
-            // TODO: check crc and show error
-            proto_tree_add_item(tree, hf_kafka_recordbatch_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+                // TODO: check crc and show error
+                proto_tree_add_item(tree, hf_kafka_recordbatch_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
 
-            proto_tree_add_bitmask(tree, tvb, offset as u32, hf_kafka_recordbatch_attributes,
-                               *ETT_BATCH_ATTRIBUTES.lock().unwrap(),
-                               kafka_batch_attributes.as_mut_ptr(), ENC_BIG_ENDIAN);
-            offset += 2;
+                proto_tree_add_bitmask(tree, tvb, offset as u32, hf_kafka_recordbatch_attributes,
+                                   *ETT_BATCH_ATTRIBUTES.lock().unwrap(),
+                                   kafka_batch_attributes.as_mut_ptr(), ENC_BIG_ENDIAN);
+                offset += 2;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_lastoffsetdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+                proto_tree_add_item(tree, hf_kafka_recordbatch_lastoffsetdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_firsttimestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
-            offset += 8;
+                proto_tree_add_item(tree, hf_kafka_recordbatch_firsttimestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_maxtimestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
-            offset += 8;
+                proto_tree_add_item(tree, hf_kafka_recordbatch_maxtimestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_producer_id, tvb, offset, 8, ENC_BIG_ENDIAN);
-            offset += 8;
+                proto_tree_add_item(tree, hf_kafka_recordbatch_producer_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_producer_epoch, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
+                proto_tree_add_item(tree, hf_kafka_recordbatch_producer_epoch, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_base_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+                proto_tree_add_item(tree, hf_kafka_recordbatch_base_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
 
-            let tree = proto_tree_add_subtree(tree, tvb, offset, -1, *ETT_RECORDBATCH_RECORDS.lock().unwrap(), 0 as *mut *mut _, i8_str("Records\0"));
-            // TODO: compression
-            offset = dissect_kafka_array(tvb, pinfo, tree, offset, api_version, dissect_record);
-            
-        } else {
-            // TODO: unknown magic
-            println!("Unknown record set magic: {}", magic);
-        }
+                let tree = proto_tree_add_subtree(tree, tvb, offset, -1, *ETT_RECORDBATCH_RECORDS.lock().unwrap(), 0 as *mut *mut _, i8_str("Records\0"));
+                // TODO: compression
+                offset = dissect_kafka_array(tvb, pinfo, tree, offset, api_version, dissect_record);
+
+            } else {
+                // TODO: unknown magic
+                println!("Unknown record set magic: {}", magic);
+            }
             //offset += 10_000;
         }
     }

@@ -5,7 +5,8 @@
 (+) Free heap: wmem_register_callback(wmem_file_scope())
 (-) Rewrite as procedural macro?
 * Integrate with Gitlab CI
-    * Build on "stable" rust
+    (+) Build on "stable" rust
+    * Cross-compile for Mac nad Win
 * Clean up warnings
 * Unit tests with TShark?
 * Compression

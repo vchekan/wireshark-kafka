@@ -14,7 +14,11 @@ pub static plugin_version: [u8; 6] = *b"0.0.0\0";
 
 #[no_mangle]
 #[used]
-pub static plugin_release: [u8; 4] = *b"2.6\0";
+pub static plugin_want_major: i32 = 3;
+
+#[no_mangle]
+#[used]
+pub static plugin_want_minor: i32 = 0;
 
 pub(crate) const KAFKA_PORT: u32 = 9092;
 lazy_static! {
