@@ -166,7 +166,7 @@ macro_rules! _resolve_version {
         if $version >= 0 {
             $api_version >= $version
         } else {
-            $api_version <= $version
+            $api_version <= -$version
         }
     };
     () => {true};

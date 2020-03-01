@@ -351,7 +351,7 @@ header_fields!(
     {hf_kafka_fetch_response_log_start_offset, "Log start offset\0", "kafka.fetch_response.log_start_offset\0", ftenum_FT_UINT64, "Earliest available offset.\0"},
     {hf_kafka_fetch_response_session_id, "Session Id\0", "kafka.fetch_response.session_id\0", ftenum_FT_UINT32, "The fetch session ID.\0"},
     // ListOffsets
-    {hf_kafka_list_offset_request_replica_id, "Replica Id\0", "kafka.list_offsets_request.replica_id\0", ftenum_FT_UINT32, "Broker id of the follower. For normal consumers, -1.\0"},
+    {hf_kafka_list_offset_request_replica_id, "Replica Id\0", "kafka.list_offsets_request.replica_id\0", ftenum_FT_INT32, "Broker id of the follower. For normal consumers, -1.\0"},
     {hf_kafka_list_offset_request_partition, "Partition\0", "kafka.list_offsets_request.partition\0", ftenum_FT_UINT32, "Topic partition id.\0"},
     {hf_kafka_list_offset_request_timestamp, "Target timestamp\0", "kafka.list_offsets_request.timestamp\0", ftenum_FT_ABSOLUTE_TIME|absolute_time_display_e_ABSOLUTE_TIME_UTC, "The target timestamp for the partition.\0"},
     {hf_kafka_list_offset_request_max_num_offsets, "Max offsets\0", "kafka.list_offsets_request.max_offsets\0", ftenum_FT_UINT32, "Maximum offsets to return.\0"},
