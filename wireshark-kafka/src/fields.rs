@@ -301,8 +301,8 @@ header_fields!(
     // TODO: DefaultRecordBatch.java:93
     {hf_kafka_recordbatch_attributes, "Attributes\0", "kafka.recordbatch.attributes\0", ftenum_FT_UINT16, "Record batch attributes\0"},
     {hf_kafka_recordbatch_lastoffsetdelta, "Last offset delta\0", "kafka.recordbatch.lastoffsetdelta\0", ftenum_FT_INT32, "Record batch last offset delta\0"},
-    {hf_kafka_recordbatch_firsttimestamp, "First timestamp\0", "kafka.recordbatch.firsttimestamp\0", ftenum_FT_INT64, "Record batch first timestamp\0"},
-    {hf_kafka_recordbatch_maxtimestamp, "Max timestamp\0", "kafka.recordbatch.maxtimestamp\0", ftenum_FT_INT64, "Record batch max timestamp\0"},
+    {hf_kafka_recordbatch_firsttimestamp, "First timestamp\0", "kafka.recordbatch.firsttimestamp\0", ftenum_FT_ABSOLUTE_TIME|absolute_time_display_e_ABSOLUTE_TIME_UTC, "Record batch first timestamp\0"},
+    {hf_kafka_recordbatch_maxtimestamp, "Max timestamp\0", "kafka.recordbatch.maxtimestamp\0", ftenum_FT_ABSOLUTE_TIME|absolute_time_display_e_ABSOLUTE_TIME_UTC, "Record batch max timestamp\0"},
     {hf_kafka_recordbatch_producer_id, "Producer Id\0", "kafka.recordbatch.producerid\0", ftenum_FT_INT64, "Record batch producer id\0"},
     {hf_kafka_recordbatch_producer_epoch, "Producer epoch\0", "kafka.recordbatch.producer_epoch\0", ftenum_FT_INT16, "Record batch producer epoch\0"},
     {hf_kafka_recordbatch_base_sequence, "Base sequence\0", "kafka.recordbatch.base_sequence\0", ftenum_FT_INT32, "Record batch base sequence\0"},

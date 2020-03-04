@@ -148,7 +148,7 @@ macro_rules! dissect_field {
 
     // Function call
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, { $_fn:ident : fn }) => {
-        $_fn($tree, $tvb, $pinfo, $offset, $api_version);
+        $offset = $_fn($tree, $tvb, $pinfo, $offset, $api_version);
     };
 
     // Function call with one argument

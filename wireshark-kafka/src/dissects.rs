@@ -73,7 +73,6 @@ extern "C" fn dissect_kafka(
             let api_version = tvb_get_ntohs(tvb, offset + 2) as i16;
             let correlationId = tvb_get_ntohl(tvb, offset + 4) as i32;
 
-            //if (*(*pinfo).fd).flags.visited() == 0 {
             if (*(*pinfo).fd).visited() == 0 {
                 insert_correlation(find_or_create_conversation(pinfo), correlationId, Correlation { api_key, api_version });
                 //println!("correlation_map << correlationId:{} -> (api_key:{}, api_version:{})", correlationId, api_key, api_version)
@@ -480,7 +479,7 @@ fn dissect_record(
         offset += varlen;
 
         // Attributes are unused as of v2.3.0
-        let attributes = tvb_get_guint8(tvb, offset);
+        let _attributes = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_kafka_record_attributes, tvb, offset, 1, ENC_NA);
         offset += 1;
 
