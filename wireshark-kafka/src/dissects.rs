@@ -1,6 +1,5 @@
 use wireshark_ffi::bindings::*;
 use crate::fields::*;
-use crate::plugin::*;
 use crate::utils::i8_str;
 use std::os::raw::{c_char, c_int, c_uint, c_void};
 use crate::protocol;
@@ -61,8 +60,7 @@ extern "C" fn dissect_kafka(
         proto_tree_add_item(kafka_tree, hf_kafka_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        let is_request = KAFKA_PORT == (*pinfo).destport;
-
+        let is_request = (*pinfo).destport == (*pinfo).match_uint;
         if is_request {
             let api_key = tvb_get_ntohs(tvb, offset);
             let api_version = tvb_get_ntohs(tvb, offset + 2) as i16;
