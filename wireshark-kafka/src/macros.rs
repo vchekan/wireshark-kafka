@@ -1,13 +1,13 @@
 
 macro_rules! header_fields {
-    ( $($attrs:tt),* ) => {
+    ( $nn:expr; $($attrs:tt),* ) => {
         // Declare
         $(header_field_declare!($attrs);)*
         // Register
         lazy_static! {
-            pub(crate) static ref HF: Mutex<Vec<hf_register_info>> = Mutex::new(vec![
+            pub(crate) static ref HF: Vec<hf_register_info> = vec![
                 $(header_field_register!($attrs),)*
-            ]);
+            ];
         }
     };
 }
@@ -20,6 +20,11 @@ macro_rules! header_field_declare {
 
     // Ints
     ( { $hf:ident, $name:expr, $abbrev:expr, $type_:ident $(|$display:ident)?, $blurb:expr $(, $enum:ident)? } ) => {
+        pub(crate) static mut $hf: i32 = -1;
+    };
+
+    // Raw field declaration
+    ( { $hf:ident $decl:tt} ) => {
         pub(crate) static mut $hf: i32 = -1;
     };
 }
@@ -59,7 +64,7 @@ macro_rules! header_field_register {
     // Ints
     ( { $hf:ident, $name:expr, $abbrev:expr, $type_:ident $(| $display:ident)?, $blurb:expr $(, $enum:ident)? } ) => {
         hf_register_info {
-            p_id: unsafe { &mut $hf as *mut _ },
+            p_id: unsafe { std::mem::transmute(& $hf) },
             hfinfo: header_field_info {
                 name: i8_str($name),
                 abbrev: i8_str($abbrev),
@@ -76,6 +81,11 @@ macro_rules! header_field_register {
             }
         }
     };
+
+    // Raw field declaration
+    ( { $hf:ident $decl:tt} ) => {
+        hf_register_info $decl
+    }
 }
 
 // TODO: fix this, it always i8_str
@@ -87,13 +97,11 @@ macro_rules! _resolve_blurp {
 macro_rules! ett {
     ($($ett:ident),*) => {
         // Declare
-        lazy_static! {
-            $(pub(crate) static ref $ett : Mutex<i32> = Mutex::new(-1);)*
-        }
+        $(pub(crate) static mut $ett : i32 = -1;)*
         // Registration helper
         pub(crate) fn create_ett() -> Vec<*mut i32> {
             vec![
-                $( (&mut *$ett.lock().unwrap()) as *mut _,)*
+                $( unsafe {(&mut $ett) as *mut _},)*
             ]
         }
     };
@@ -133,14 +141,14 @@ macro_rules! dissect_field {
 
     // String
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, { $hf:ident : String, $ett:ident }) => {
-        unsafe{ $offset = dissect_kafka_string($tree, $hf, *$ett.lock().unwrap(), $tvb, $pinfo, $offset); }
+        unsafe{ $offset = dissect_kafka_string($tree, $hf, $ett, $tvb, $pinfo, $offset); }
     };
 
     // Array
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, [$t:ident $ett:ident]) => {
         unsafe {
             $offset = {
-                let tree = unsafe {proto_tree_add_subtree($tree, $tvb, $offset, -1, *$ett.lock().unwrap(), 0 as *mut *mut _, i8_str(concat!(stringify!($f),"\0")))};
+                let tree = unsafe {proto_tree_add_subtree($tree, $tvb, $offset, -1, $ett, 0 as *mut *mut _, i8_str(concat!(stringify!($f),"\0")))};
                 dissect_kafka_array($tvb, $pinfo, tree, $offset, $api_version, $t::dissect)
             };
         }

@@ -1,8 +1,6 @@
 #![feature(trace_macros)]
 
 use wireshark_ffi::bindings::*;
-use std::os::raw::{c_char, c_int, c_void};
-use lazy_static::lazy_static;
 use crate::dissects::*;
 use crate::utils::i8_str;
 use crate::fields::*;

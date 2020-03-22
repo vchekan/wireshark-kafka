@@ -1,8 +1,7 @@
 use wireshark_ffi::bindings::*;
 use crate::utils::i8_str;
+use std::os::raw::c_void;
 use lazy_static::lazy_static;
-use std::sync::Mutex;
-use std::os::raw::{c_char, c_int, c_void};
 
 ett!(ETT_KAFKA, ett_broker_host, ETT_TOPICS, ETT_CLIENT_ID,
     ETT_METADATA_REQ_TOPICS,
@@ -248,7 +247,7 @@ ett!(ETT_KAFKA, ett_broker_host, ETT_TOPICS, ETT_CLIENT_ID,
     ETT_RECORDBATCH_RECORDS
 );
 
-header_fields!(
+header_fields!(189;
     // Shared
     {hf_kafka_error, "Error\0", "kafka.error\0", ftenum_FT_INT16, "Kafka broker error.\0", kafka_error_names},
     {hf_kafka_group_id, "Group Id\0", "kafka.group_id\0", "The unique group identifier.\0"},
@@ -332,7 +331,7 @@ header_fields!(
     //
     {hf_kafka_produce_response_baseoffset, "Base offset\0", "kafka.produce_response.baseoffset\0", ftenum_FT_UINT64, "Produce response base offset\0"},
     {hf_kafka_log_append_time, "Log append time\0", "kafka.produce_response.log_append_time\0", ftenum_FT_ABSOLUTE_TIME|absolute_time_display_e_ABSOLUTE_TIME_UTC, "Produce response log append time\0"},
-    {hf_kafka_produce_log_start_offset, "Log start offset\0", "kafka.produce_response.log_start_offset\0", ftenum_FT_UINT64, "Earliest available offset.\0"},
+    {hf_kafka_produce_log_start_offset, "Log start offset\0", "kafka.produce_response.log_start_offset\0", ftenum_FT_INT64, "Earliest available offset.\0"},
     {hf_kafka_replica_id, "Replica Id\0", "kafka.fetch_request.replica_id\0", ftenum_FT_UINT32, "Fetch Request replica Id\0"},
     {hf_kafka_max_wait_time, "Max wait time\0", "kafka.fetch_request.max_wait_time\0", ftenum_FT_UINT32, "Fetch Request max wait time\0"},
     {hf_kafka_min_bytes, "Min bytes\0", "kafka.fetch_request.min_bytes\0", ftenum_FT_UINT32, "Fetch Request min bytes\0"},
@@ -344,11 +343,11 @@ header_fields!(
     {hf_kafka_fetch_request_session_id, "Session Id\0", "kafka.fetch_request.session_id\0", ftenum_FT_UINT32, "The fetch session ID.\0"},
     {hf_kafka_session_epoch, "Session epoch\0", "kafka.fetch_request.session_epoch\0", ftenum_FT_UINT32, "The fetch session epoch.\0"},
     {hf_kafka_current_leader_epoch, "Leader epoch\0", "kafka.leader_epoch\0", ftenum_FT_UINT32, "The current leader epoch, if provided, is used to fence consumers/replicas with old metadata.\0"},
-    {hf_kafka_high_watermark, "High watermark\0", "kafka.fetch_response.high_watermark\0", ftenum_FT_UINT64, "Last committed offset.\0"},
-    {hf_kafka_last_stable_offset, "Last stable offset\0", "kafka.fetch_response.last_stable_offset\0", ftenum_FT_UINT64, "Last stable offset.\0"},
+    {hf_kafka_high_watermark, "High watermark\0", "kafka.fetch_response.high_watermark\0", ftenum_FT_INT64, "Last committed offset.\0"},
+    {hf_kafka_last_stable_offset, "Last stable offset\0", "kafka.fetch_response.last_stable_offset\0", ftenum_FT_INT64, "Last stable offset.\0"},
     {hf_kafka_aborted_tx_producer_id, "Aborted tx producer Id\0", "kafka.fetch_response.aborted_tx.producer_id\0", ftenum_FT_UINT64, "Aborted transaction producer Id.\0"},
     {hf_kafka_aborted_tx_first_offset, "Aborted tx first offset\0", "kafka.fetch_response.aborted_tx.first_offset\0", ftenum_FT_UINT64, "Aborted transaction first offset.\0"},
-    {hf_kafka_fetch_response_log_start_offset, "Log start offset\0", "kafka.fetch_response.log_start_offset\0", ftenum_FT_UINT64, "Earliest available offset.\0"},
+    {hf_kafka_fetch_response_log_start_offset, "Log start offset\0", "kafka.fetch_response.log_start_offset\0", ftenum_FT_INT64, "Earliest available offset.\0"},
     {hf_kafka_fetch_response_session_id, "Session Id\0", "kafka.fetch_response.session_id\0", ftenum_FT_UINT32, "The fetch session ID.\0"},
     // ListOffsets
     {hf_kafka_list_offset_request_replica_id, "Replica Id\0", "kafka.list_offsets_request.replica_id\0", ftenum_FT_INT32, "Broker id of the follower. For normal consumers, -1.\0"},
@@ -450,33 +449,8 @@ header_fields!(
     {hf_kafka_delegation_token_token_id, "Token Id\0", "hf_kafka.delegation_token.token_id\0", "UUID to ensure uniqueness.\0"},
     {hf_kafka_delegation_token_hmac, "HMAC\0", "hf_kafka.delegation_token.hmac\0", ftenum_FT_BYTES|field_display_e_BASE_NONE, "HMAC of the delegation token.\0"},
     {hf_kafka_delegation_token_renew_time_period, "Renew time period\0", "hf_kafka.delegation_token.renew_time_period\0", ftenum_FT_UINT64, "Renew time period in milli seconds.\0"},
-    {hf_kafka_delegation_token_expiry_time_period, "Expiry time period\0", "hf_kafka.delegation_token.expiry_time_period\0", ftenum_FT_UINT64, "Expiry time period in milli seconds.\0"}
-);
-
-pub(crate) static mut hf_kafka_batch_compression: i32 = -1;
-pub(crate) static mut hf_kafka_batch_timestamp_type: i32 = -1;
-pub(crate) static mut hf_kafka_batch_istransactional: i32 = -1;
-pub(crate) static mut hf_kafka_batch_iscontrolbatch: i32 = -1;
-pub(crate) static mut hf_kafka_messageset_compression: i32 = -1;
-pub(crate) static mut hf_kafka_messagest_timestamp_type: i32 = -1;
-
-pub(crate) static mut kafka_batch_attributes: [*const i32; 5] = [
-    unsafe {&hf_kafka_batch_compression as *const i32},
-    unsafe {&hf_kafka_batch_timestamp_type as *const i32},
-    unsafe {&hf_kafka_batch_istransactional as *const i32},
-    unsafe {&hf_kafka_batch_iscontrolbatch as *const i32},
-    0 as *const i32,
-];
-
-pub(crate) static mut kafka_messageset_attributes: [*const i32; 3] = [
-    unsafe {&hf_kafka_messageset_compression as *const i32},
-    unsafe {&hf_kafka_messagest_timestamp_type as *const i32},
-    0 as *const i32,
-];
-
-
-pub(crate) fn hf2() -> Vec<hf_register_info> {vec![
-    hf_register_info {
+    {hf_kafka_delegation_token_expiry_time_period, "Expiry time period\0", "hf_kafka.delegation_token.expiry_time_period\0", ftenum_FT_UINT64, "Expiry time period in milli seconds.\0"},
+    {hf_kafka_batch_compression {
         p_id: unsafe { &mut hf_kafka_batch_compression as *mut _ },
         hfinfo: header_field_info {
             name: i8_str("Compression\0"),
@@ -492,8 +466,8 @@ pub(crate) fn hf2() -> Vec<hf_register_info> {vec![
             same_name_prev_id: -1,
             same_name_next: 0 as *mut _header_field_info,
         }
-    },
-    hf_register_info {
+    }},
+    {hf_kafka_batch_timestamp_type {
         p_id: unsafe { &mut hf_kafka_batch_timestamp_type as *mut _ },
         hfinfo: header_field_info {
             name: i8_str("Timestamp type\0"),
@@ -509,8 +483,8 @@ pub(crate) fn hf2() -> Vec<hf_register_info> {vec![
             same_name_prev_id: -1,
             same_name_next: 0 as *mut _header_field_info,
         }
-    },
-    hf_register_info {
+    }},
+    {hf_kafka_batch_istransactional {
         p_id: unsafe { &mut hf_kafka_batch_istransactional as *mut _ },
         hfinfo: header_field_info {
             name: i8_str("Is transactional\0"),
@@ -526,8 +500,8 @@ pub(crate) fn hf2() -> Vec<hf_register_info> {vec![
             same_name_prev_id: -1,
             same_name_next: 0 as *mut _header_field_info,
         }
-    },
-    hf_register_info {
+    }},
+    {hf_kafka_batch_iscontrolbatch {
         p_id: unsafe { &mut hf_kafka_batch_iscontrolbatch as *mut _ },
         hfinfo: header_field_info {
             name: i8_str("Is control batch\0"),
@@ -543,9 +517,9 @@ pub(crate) fn hf2() -> Vec<hf_register_info> {vec![
             same_name_prev_id: -1,
             same_name_next: 0 as *mut _header_field_info,
         }
-    },
+    }},
     // Message Set attributes (are u8 instead of u16)
-    hf_register_info {
+    {hf_kafka_messageset_compression {
         p_id: unsafe { &mut hf_kafka_messageset_compression as *mut _ },
         hfinfo: header_field_info {
             name: i8_str("Compression\0"),
@@ -561,8 +535,8 @@ pub(crate) fn hf2() -> Vec<hf_register_info> {vec![
             same_name_prev_id: -1,
             same_name_next: 0 as *mut _header_field_info,
         }
-    },
-    hf_register_info {
+    }},
+    {hf_kafka_messagest_timestamp_type {
         p_id: unsafe { &mut hf_kafka_messagest_timestamp_type as *mut _ },
         hfinfo: header_field_info {
             name: i8_str("Timestamp type\0"),
@@ -578,8 +552,22 @@ pub(crate) fn hf2() -> Vec<hf_register_info> {vec![
             same_name_prev_id: -1,
             same_name_next: 0 as *mut _header_field_info,
         }
-    },
-]}
+    }}
+);
+
+pub(crate) static mut kafka_batch_attributes: [*const i32; 5] = [
+    unsafe {&hf_kafka_batch_compression as *const i32},
+    unsafe {&hf_kafka_batch_timestamp_type as *const i32},
+    unsafe {&hf_kafka_batch_istransactional as *const i32},
+    unsafe {&hf_kafka_batch_iscontrolbatch as *const i32},
+    0 as *const i32,
+];
+
+pub(crate) static mut kafka_messageset_attributes: [*const i32; 3] = [
+    unsafe {&hf_kafka_messageset_compression as *const i32},
+    unsafe {&hf_kafka_messagest_timestamp_type as *const i32},
+    0 as *const i32,
+];
 
 static COMPRESSION_NAMES : [value_string; 6] = [
     value_string { value: 0_u32, strptr: i8_str("none\0")},
@@ -677,7 +665,6 @@ lazy_static! {
             }
         })
         .collect();
-
 }
 
 pub(crate) static api_keys: [(u16, &'static str); 43] = [

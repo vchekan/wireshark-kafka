@@ -3,12 +3,9 @@ use crate::fields::*;
 use crate::plugin::*;
 use crate::utils::i8_str;
 use std::os::raw::{c_char, c_int, c_uint, c_void};
-use std::sync::{MutexGuard, Mutex};
-use lazy_static::lazy_static;
 use std::collections::HashMap;
 use crate::protocol;
 use crate::plugin::PROTO_KAFKA;
-use core::borrow::BorrowMut;
 use crate::correlation_map::*;
 
 pub(crate) struct Correlation {
@@ -60,13 +57,12 @@ extern "C" fn dissect_kafka(
         col_set_str((*pinfo).cinfo, COL_PROTOCOL as c_int, i8_str("Kafka\0"));
         col_clear((*pinfo).cinfo, COL_INFO as c_int);
 
-        let root_ti = proto_tree_add_item(tree, *PROTO_KAFKA.lock().unwrap(), tvb, 0, -1, ENC_NA);
-        let kafka_tree = proto_item_add_subtree(root_ti, *ETT_KAFKA.lock().unwrap());
+        let root_ti = proto_tree_add_item(tree, PROTO_KAFKA, tvb, 0, -1, ENC_NA);
+        let kafka_tree = proto_item_add_subtree(root_ti, ETT_KAFKA);
         proto_tree_add_item(kafka_tree, hf_kafka_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         let is_request = KAFKA_PORT == (*pinfo).destport;
-        let conversation : *mut conversation_t = find_or_create_conversation(pinfo);
 
         if is_request {
             let api_key = tvb_get_ntohs(tvb, offset);
@@ -75,7 +71,6 @@ extern "C" fn dissect_kafka(
 
             if (*(*pinfo).fd).visited() == 0 {
                 insert_correlation(find_or_create_conversation(pinfo), correlationId, Correlation { api_key, api_version });
-                //println!("correlation_map << correlationId:{} -> (api_key:{}, api_version:{})", correlationId, api_key, api_version)
             }
 
             col_add_fstr(
@@ -127,7 +122,7 @@ extern "C" fn dissect_kafka(
             offset += 4;
 
             // ClientId
-            offset = dissect_kafka_string(kafka_tree, hf_kafka_client_id, *ETT_CLIENT_ID.lock().unwrap(), tvb, pinfo, offset);
+            offset = dissect_kafka_string(kafka_tree, hf_kafka_client_id, ETT_CLIENT_ID, tvb, pinfo, offset);
 
             match api_key {
                 0 => { protocol::ProduceRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version); },
@@ -191,7 +186,7 @@ extern "C" fn dissect_kafka(
             );
             offset += 4;
 
-            match find_correlation(find_or_create_conversation(pinfo), correlationId) { //correlation_map.lock().unwrap().get(&(conversation,correlationId)) {
+            match find_correlation(find_or_create_conversation(pinfo), correlationId) {
                 None => println!("Can not find matching request for response (correlationId={})", correlationId),
                 Some(correlation) => {
                     //println!("correlation_map[{}] >> (api_key:{}, api_version:{})", correlationId, correlation.api_key, correlation.api_version);
@@ -341,13 +336,11 @@ pub(crate) fn dissect_record_batch(
     unsafe {
         // TODO: validate segment size boundaries
         let segment_size = tvb_get_ntohl(tvb, offset);
-        //println!("segment_size: {}", segment_size);
         proto_tree_add_item(tree, hf_kafka_recordbatch_segment_size, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         if segment_size > 0 {
             let magic = tvb_get_guint8(tvb, offset + 8 + 4 + 4);
-            //println!("magic: {}", magic);
 
             if magic == 1 {
                 offset = dissect_message_set_v1(tree, tvb, pinfo, offset);
@@ -370,7 +363,7 @@ pub(crate) fn dissect_record_batch(
                 offset += 4;
 
                 proto_tree_add_bitmask(tree, tvb, offset as u32, hf_kafka_recordbatch_attributes,
-                                   *ETT_BATCH_ATTRIBUTES.lock().unwrap(),
+                                   ETT_BATCH_ATTRIBUTES,
                                    kafka_batch_attributes.as_mut_ptr(), ENC_BIG_ENDIAN);
                 offset += 2;
 
@@ -392,7 +385,7 @@ pub(crate) fn dissect_record_batch(
                 proto_tree_add_item(tree, hf_kafka_recordbatch_base_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                let tree = proto_tree_add_subtree(tree, tvb, offset, -1, *ETT_RECORDBATCH_RECORDS.lock().unwrap(), 0 as *mut *mut _, i8_str("Records\0"));
+                let tree = proto_tree_add_subtree(tree, tvb, offset, -1, ETT_RECORDBATCH_RECORDS, 0 as *mut *mut _, i8_str("Records\0"));
                 // TODO: compression
                 offset = dissect_kafka_array(tvb, pinfo, tree, offset, api_version, dissect_record);
 
@@ -400,7 +393,6 @@ pub(crate) fn dissect_record_batch(
                 // TODO: unknown magic
                 println!("Unknown record set magic: {}", magic);
             }
-            //offset += 10_000;
         }
     }
 
@@ -424,7 +416,7 @@ fn dissect_message_set_v1(tree: *mut proto_tree, tvb: *mut tvbuff_t, pinfo: *mut
             offset += 1;
 
             proto_tree_add_bitmask(tree, tvb, offset as u32, hf_kafka_messageset_attributes,
-                                   *ETT_BATCH_ATTRIBUTES.lock().unwrap(),
+                                   ETT_BATCH_ATTRIBUTES,
                                    kafka_messageset_attributes.as_mut_ptr(), ENC_BIG_ENDIAN);
             offset += 1;
 

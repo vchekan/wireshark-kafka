@@ -17,12 +17,12 @@ use std::os::raw::c_void;
 
 pub(crate) fn insert_correlation(conversation: *mut conversation_t, corr: i32, info: Correlation) {
     unsafe {
-        let mut data = conversation_get_proto_data(conversation, *PROTO_KAFKA.lock().unwrap());
+        let mut data = conversation_get_proto_data(conversation, PROTO_KAFKA);
         if data == 0 as *mut c_void {
             let mut map = HashMap::<i32,Correlation>::new();
             map.insert(corr, info);
             let map = Box::into_raw(Box::new(map));
-            conversation_add_proto_data(conversation, *PROTO_KAFKA.lock().unwrap(), map as *mut c_void);
+            conversation_add_proto_data(conversation, PROTO_KAFKA, map as *mut c_void);
             let _id = wmem_register_callback(wmem_file_scope(), Some(deallocate), map as *mut c_void);
         } else {
             let map: &mut HashMap<i32,Correlation> = &mut *(data as *mut HashMap<i32,Correlation>);
@@ -33,7 +33,7 @@ pub(crate) fn insert_correlation(conversation: *mut conversation_t, corr: i32, i
 
 pub(crate) fn find_correlation(conversation: *mut conversation_t, corr: i32) -> Option<&'static Correlation> {
     unsafe {
-        let mut data = conversation_get_proto_data(conversation, *PROTO_KAFKA.lock().unwrap());
+        let mut data = conversation_get_proto_data(conversation, PROTO_KAFKA);
         if data == 0 as *mut c_void {
             //unimplemented!();
             return None;
