@@ -146,12 +146,10 @@ macro_rules! dissect_field {
 
     // Array
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, [$t:ident $ett:ident]) => {
-        unsafe {
-            $offset = {
-                let tree = unsafe {proto_tree_add_subtree($tree, $tvb, $offset, -1, $ett, 0 as *mut *mut _, i8_str(concat!(stringify!($f),"\0")))};
-                dissect_kafka_array($tvb, $pinfo, tree, $offset, $api_version, $t::dissect)
-            };
-        }
+        $offset = {
+            let tree = unsafe {proto_tree_add_subtree($tree, $tvb, $offset, -1, $ett, 0 as *mut *mut _, i8_str(concat!(stringify!($f),"\0")))};
+            dissect_kafka_array($tvb, $pinfo, tree, $offset, $api_version, $t::dissect)
+        };
     };
 
     // Function call

@@ -17,7 +17,7 @@ use std::os::raw::c_void;
 
 pub(crate) fn insert_correlation(conversation: *mut conversation_t, corr: i32, info: Correlation) {
     unsafe {
-        let mut data = conversation_get_proto_data(conversation, PROTO_KAFKA);
+        let data = conversation_get_proto_data(conversation, PROTO_KAFKA);
         if data == 0 as *mut c_void {
             let mut map = HashMap::<i32,Correlation>::new();
             map.insert(corr, info);
@@ -33,7 +33,7 @@ pub(crate) fn insert_correlation(conversation: *mut conversation_t, corr: i32, i
 
 pub(crate) fn find_correlation(conversation: *mut conversation_t, corr: i32) -> Option<&'static Correlation> {
     unsafe {
-        let mut data = conversation_get_proto_data(conversation, PROTO_KAFKA);
+        let data = conversation_get_proto_data(conversation, PROTO_KAFKA);
         if data == 0 as *mut c_void {
             //unimplemented!();
             return None;
@@ -50,7 +50,7 @@ unsafe extern "C" fn deallocate(
     arg3: *mut ::std::os::raw::c_void,
 ) -> gboolean {
     if arg3 != 0 as *mut c_void {
-        let map: *mut HashMap<i32,Correlation> = (arg3 as *mut HashMap<i32,Correlation>);
+        let map: *mut HashMap<i32,Correlation> = arg3 as *mut HashMap<i32,Correlation>;
         map.drop_in_place();
     }
 

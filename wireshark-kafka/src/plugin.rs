@@ -45,7 +45,7 @@ extern "C" fn proto_register_kafka() {
         proto_register_field_array(PROTO_KAFKA, hf_unsafe, HF.len() as i32);
 
         // Register ett
-        let mut ett = create_ett();
+        let ett = create_ett();
         proto_register_subtree_array(ett.as_ptr(), ett.len() as i32);
     }
 }

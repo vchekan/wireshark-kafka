@@ -1,3 +1,4 @@
+#![allow(non_upper_case_globals)]
 use wireshark_ffi::bindings::*;
 use crate::utils::i8_str;
 use std::os::raw::c_void;

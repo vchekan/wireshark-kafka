@@ -1,9 +1,10 @@
-#![feature(trace_macros)]
+#![allow(unused)]
 
 use wireshark_ffi::bindings::*;
 use crate::dissects::*;
 use crate::utils::i8_str;
 use crate::fields::*;
+
 
 //
 // Api Key 0: Produce
