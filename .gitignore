@@ -1,2 +1,7 @@
+/*.dump
+/.idea
+/*.iml
+/target
 
-wireshark-macro/\.idea/
+/*.pcapng
+/*.*dump

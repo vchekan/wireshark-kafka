@@ -7,6 +7,10 @@
 * Integrate with Gitlab CI
     (+) Build on "stable" rust
     * Cross-compile for Mac nad Win
+* Remove lazy_static
+    - [ ] write a macro for arrays
+    * or
+    - [ ] Init arrays in plugin_register() & use raw pointers
 * Clean up warnings
 * Unit tests with TShark?
 * Compression

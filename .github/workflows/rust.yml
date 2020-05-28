@@ -1,0 +1,34 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+    container: rust:latest
+
+    steps:
+    - name: Prerequisites
+      run: |
+        apt-get update
+        apt install -y libclang-dev clang build-essential:native lsb-release omniidl snacc
+    - name: Compile wireshark
+      run: |
+        curl -s https://www.wireshark.org/download/src/all-versions/wireshark-3.0.9.tar.xz -o wireshark.tar.xz
+        tar -xf wireshark.tar.xz
+        cd wireshark-3.0.9 &&
+          tools/debian-setup.sh --install-optional --install-deb-deps --install-test-deps -y &&
+          dpkg-buildpackage -b -uc -us -jauto 
+    - name: Install wireshark
+      run: dpkg -i *.deb    
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose --release

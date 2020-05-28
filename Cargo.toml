@@ -16,5 +16,5 @@ lto = true
 panic = 'abort'
 
 [dependencies]
-wireshark_ffi = {path = "../wireshark-ffi"}
+wireshark_ffi = {path = "./wireshark-ffi"}
 lazy_static = "1.4.0"
