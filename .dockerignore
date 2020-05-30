@@ -1,9 +1,13 @@
 **/.git
-**/.cargo
+.github/
 **/.idea
 .dockerignore
-**/target
 *.dump
 *.pcapng
+doc/
+release/
+target/
 Dockerfile
 readme.md
+build*
+release/

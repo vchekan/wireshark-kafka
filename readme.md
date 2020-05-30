@@ -1,47 +1,64 @@
 # Kafka dissector plugin for Wireshark
 
-## ApiKey                           Max Supported Version
-- [x] Produce	0                   7
-- [x] Fetch	1                       10
-- [x] ListOffsets	2               5
-- [x] Metadata	3                   7
-- [x] LeaderAndIsr	4               2
-- [x] StopReplica	5               1
-- [X] UpdateMetadata	6           5
-- [x] ControlledShutdown	7       2
-- [x] OffsetCommit	8               6
-- [x] OffsetFetch	9               5
-- [x] FindCoordinator	10          2
-- [x] JoinGroup	11                  4
-- [x] Heartbeat	12                  2
-- [x] LeaveGroup	13              2
-- [x] SyncGroup	14                  2
-- [x] DescribeGroups	15          2
-- [x] ListGroups	16              2
-- [x] SaslHandshake	17              1
-- [x] ApiVersions	18              2
-- [x] CreateTopics	19              3
-- [x] DeleteTopics	20              3
-- [x] DeleteRecords	21              1
-- [x] InitProducerId	22          1
-- [x] OffsetForLeaderEpoch	23      2
-- [x] AddPartitionsToTxn	24      1
-- [x] AddOffsetsToTxn	25          1
-- [x] EndTxn	26                  1
-- [x] WriteTxnMarkers	27          0
-- [x] TxnOffsetCommit	28          2
-- [x] DescribeAcls	29              1
-- [x] CreateAcls	30              1
-- [x] DeleteAcls	31              1
-- [x] DescribeConfigs	32          2
-- [x] AlterConfigs	33              1
-- [x] AlterReplicaLogDirs	34      1
-- [x] DescribeLogDirs	35          1
-- [x] SaslAuthenticate	36          1
-- [x] CreatePartitions	37          1
-- [x] CreateDelegationToken	38      1
-- [x] RenewDelegationToken	39      1
-- [x] ExpireDelegationToken	40      1
-- [x] DescribeDelegationToken	41  1
-- [x] DeleteGroups	42              1
-- [x] ElectPreferredLeaders	43      0
+![](doc/screenshot.png)
+
+## Install
+Packages are planned, for now:
+```
+cargo build --release
+cp target/release/libkafka_plugin.so $HOME/.local/lib/wireshark/plugins/3.0/epan/
+```
+
+## TODO
+- [ ] Compression decoding
+- [ ] Compile for wireshark-v2.x
+- [ ] Publish .dpg
+- [ ] Publish on Brew (Osx)
+
+## Supported ApiKeys and max supported version
+| ApiKey                           | Max |
+|----------------------------------|:---:|
+| Produce	                       | 7   |
+| Fetch					|  10  |
+| ListOffsets					|  5  |
+| Metadata					|  7  |
+| LeaderAndIsr					|  2  |
+| StopReplica					|  1  |
+| UpdateMetadata					|  5  |
+| ControlledShutdown					|  2  |
+| OffsetCommit					|  6  |
+| OffsetFetch					|  5  |
+| FindCoordinator					|  2  |
+| JoinGroup					|  4  |
+| Heartbeat					|  2  |
+| LeaveGroup					|  2  |
+| SyncGroup					|  2  |
+| DescribeGroups					|  2  |
+| ListGroups					|  2  |
+| SaslHandshake					|  1  |
+| ApiVersions					|  2  |
+| CreateTopics					|  3  |
+| DeleteTopics					|  3  |
+| DeleteRecords					|  1  |
+| InitProducerId					|  1  |
+| OffsetForLeaderEpoch					|  2  |
+| AddPartitionsToTxn					|  1  |
+| AddOffsetsToTxn					|  1  |
+| EndTxn					|  1  |
+| WriteTxnMarkers					|  0  |
+| TxnOffsetCommit					|  2  |
+| DescribeAcls					|  1  |
+| CreateAcls					|  1  |
+| DeleteAcls					|  1  |
+| DescribeConfigs					|  2  |
+| AlterConfigs					|  1  |
+| AlterReplicaLogDirs					|  1  |
+| DescribeLogDirs					|  1  |
+| SaslAuthenticate					|  1  |
+| CreatePartitions					|  1  |
+| CreateDelegationToken					|  1  |
+| RenewDelegationToken					|  1  |
+| ExpireDelegationToken					|  1  |
+| DescribeDelegationToken					|  1  |
+| DeleteGroups					|  1  |
+| ElectPreferredLeaders					|  0  |

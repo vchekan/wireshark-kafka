@@ -2,33 +2,61 @@ name: Rust
 
 on:
   push:
-    branches: [ master ]
+    branches: [ release ]
   pull_request:
-    branches: [ master ]
+    branches: [ release ]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-
     runs-on: ubuntu-18.04
-    container: rust:latest
-
+    container: 
+      image: rust:latest
     steps:
     - name: Prerequisites
       run: |
         apt-get update
-        apt install -y libclang-dev clang build-essential:native lsb-release omniidl snacc
+        apt-get install -y libclang-dev clang build-essential:native lsb-release omniidl snacc
     - name: Compile wireshark
       run: |
-        curl -s https://www.wireshark.org/download/src/all-versions/wireshark-3.0.9.tar.xz -o wireshark.tar.xz
+        curl -s https://www.wireshark.org/download/src/all-versions/wireshark-3.2.3.tar.xz -o wireshark.tar.xz
         tar -xf wireshark.tar.xz
-        cd wireshark-3.0.9 &&
+        cd wireshark-3.2.3 &&
           tools/debian-setup.sh --install-optional --install-deb-deps --install-test-deps -y &&
-          dpkg-buildpackage -b -uc -us -jauto 
+          dpkg-buildpackage -b -uc -us -jauto
     - name: Install wireshark
       run: dpkg -i *.deb    
+    
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose --release
+  
+  osx:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Fetch wireshark
+        run: |
+          curl -s https://1.eu.dl.wireshark.org/src/all-versions/wireshark-3.2.3.tar.xz -o wireshark.tar.xz
+          SUM=`shasum -a 256 -b wireshark.tar.xz`
+          if [ 'f007e4b88c86d95e33af03e057ecc03635f54466d02371bc26489eabb274faba *wireshark.tar.xz' != "$SUM" ]; then
+            echo "Bad checksum: $SUM"
+            exit 1
+          fi
+          tar -xf wireshark.tar.xz
+          mv wireshark-3.2.3 wireshark-src
+          rm wireshark.tar.xz
+      - name: Build Wireshark
+        run: |
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+          wireshark-src/tools/macos-setup-brew.sh
+          mkdir wireshark-ninja
+          cd wireshark-ninja
+          cmake -G Ninja ../wireshark-src
+          cmake --build .
+      - name: Install latest Rust
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+      - name: Build
+        run: $HOME/.cargo/bin/cargo build --verbose --release

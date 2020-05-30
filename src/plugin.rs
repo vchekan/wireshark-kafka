@@ -14,7 +14,7 @@ pub static plugin_want_major: i32 = 3;
 
 #[no_mangle]
 #[used]
-pub static plugin_want_minor: i32 = 0;
+pub static plugin_want_minor: i32 = 2;
 
 /// Protocol handler. Registered with wireshark at runtime.
 pub(crate) const KAFKA_PORT: u32 = 9092;

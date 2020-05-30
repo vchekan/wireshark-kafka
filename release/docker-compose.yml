@@ -1,0 +1,25 @@
+version: "3.3"
+services:
+  ubuntu-20-04:
+    build:
+      args:
+        UBUNTU_VERSION: "20.04"
+      dockerfile: release/ubuntu.dockerfile
+      context: ../
+    container_name: kafka-wireshark-build-ubuntu-20-04
+    volumes:
+      - "/home/vadym/projects/wireshark-kafka/release/build:/wireshark/target/release"
+
+
+#      - type: volume
+#        source: "./build/ubuntu-20_04"
+#        target: "/wireshark"
+#  ubuntu-18-04:
+#    build:
+#      args:
+#        UBUNTU_VERSION: "18.04"
+#      dockerfile: release/ubuntu.dockerfile
+#      context: ../
+#    container_name: kafka-wireshark-build-ubuntu-18-04
+#    volumes:
+#      - "./build/ubuntu-18_04:/wireshark"
