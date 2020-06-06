@@ -714,6 +714,15 @@ pub(crate) static api_keys: [(u16, &'static str); 43] = [
     (42, "DeleteGroups\0"),
 ];
 
+//static kafka_error_names: [value_string; 43] = map_value_string!(kafka_errors);
+
+const fn build_error_names() -> [value_string; 78] {
+    let mut x = [value_string; 78];
+    for i in 0..kafka_errors.len() {
+        x[i] = unsafe{ value_string { value: *k as u32, strptr: v.as_ptr() as *const i8} };
+    }
+}
+
 pub(crate) static kafka_errors: [(i32, &'static str); 78] = [
     (-1, "UNKNOWN_SERVER_ERROR\0"),
     (0, "NONE\0"),

@@ -1,4 +1,5 @@
 #![recursion_limit="512"]
+#![feature(const_mut_refs)]
 #[macro_use] mod macros;
 mod dissects;
 mod fields;

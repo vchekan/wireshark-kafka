@@ -4,6 +4,9 @@ macro_rules! header_fields {
         // Declare
         $(header_field_declare!($attrs);)*
         // Register
+        /*pub(crate) static HF: [hf_register_info; $nn] = [
+            $(header_field_register!($attrs),)*
+        ];*/
         lazy_static! {
             pub(crate) static ref HF: Vec<hf_register_info> = vec![
                 $(header_field_register!($attrs),)*
@@ -64,7 +67,7 @@ macro_rules! header_field_register {
     // Ints
     ( { $hf:ident, $name:expr, $abbrev:expr, $type_:ident $(| $display:ident)?, $blurb:expr $(, $enum:ident)? } ) => {
         hf_register_info {
-            p_id: unsafe { std::mem::transmute(& $hf) },
+            p_id: unsafe { &mut $hf as *mut _ },
             hfinfo: header_field_info {
                 name: i8_str($name),
                 abbrev: i8_str($abbrev),
@@ -193,5 +196,27 @@ macro_rules! protocol {
                 offset
             }
         }
+    };
+}
+
+/// Used to extract string value array for key names and error names,
+/// i.e. convert
+/// ```
+/// [
+///     (0, "Produce\0"),
+///     ...
+/// ]
+/// ```
+/// into
+///```
+/// [
+///  value_string {
+///    value: 0 as u32,
+///    strptr: "Produce\0".as_ptr() as *const i8,
+///   },
+/// ]
+macro_rules! map_value_string {
+    ( [$($k:literal, $v:literal),*] ) => {
+        [ $(value_string { value: *$k as u32, strptr: $v.as_ptr() as *const i8},)* ]
     };
 }
