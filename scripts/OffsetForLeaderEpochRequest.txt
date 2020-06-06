@@ -1,0 +1,9 @@
+[topics]
+  topics => topic [partitions]
+    topic => STRING
+    partitions => partition current_leader_epoch leader_epoch
+      partition => INT32
+      current_leader_epoch => INT32
+      leader_epoch => INT32
+
+

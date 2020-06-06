@@ -1,0 +1,7 @@
+[topic_partitions] timeout_ms
+  topic_partitions => topic [partition_id]
+    topic => STRING
+    partition_id => INT32
+  timeout_ms => INT32
+
+

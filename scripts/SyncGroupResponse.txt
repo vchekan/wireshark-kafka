@@ -1,0 +1,6 @@
+throttle_time_ms error_code member_assignment
+  throttle_time_ms => INT32
+  error_code => INT16
+  member_assignment => BYTES
+
+

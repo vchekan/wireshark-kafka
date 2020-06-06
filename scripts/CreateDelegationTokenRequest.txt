@@ -1,0 +1,7 @@
+[renewers] max_life_time
+  renewers => principal_type name
+    principal_type => STRING
+    name => STRING
+  max_life_time => INT64
+
+

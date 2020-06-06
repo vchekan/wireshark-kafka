@@ -1,0 +1,25 @@
+controller_id controller_epoch broker_epoch [topic_states] [live_brokers]
+  controller_id => INT32
+  controller_epoch => INT32
+  broker_epoch => INT64
+  topic_states => topic [partition_states]
+    topic => STRING
+    partition_states => partition controller_epoch leader leader_epoch [isr] zk_version [replicas] [offline_replicas]
+      partition => INT32
+      controller_epoch => INT32
+      leader => INT32
+      leader_epoch => INT32
+      isr => INT32
+      zk_version => INT32
+      replicas => INT32
+      offline_replicas => INT32
+  live_brokers => id [end_points] rack
+    id => INT32
+    end_points => port host listener_name security_protocol_type
+      port => INT32
+      host => STRING
+      listener_name => STRING
+      security_protocol_type => INT16
+    rack => NULLABLE_STRING
+
+

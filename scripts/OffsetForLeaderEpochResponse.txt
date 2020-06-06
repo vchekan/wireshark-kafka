@@ -1,0 +1,11 @@
+throttle_time_ms [topics]
+  throttle_time_ms => INT32
+  topics => topic [partitions]
+    topic => STRING
+    partitions => error_code partition leader_epoch end_offset
+      error_code => INT16
+      partition => INT32
+      leader_epoch => INT32
+      end_offset => INT64
+
+

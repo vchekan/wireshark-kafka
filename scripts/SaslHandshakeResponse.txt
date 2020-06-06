@@ -1,0 +1,5 @@
+error_code [enabled_mechanisms]
+  error_code => INT16
+  enabled_mechanisms => STRING
+
+

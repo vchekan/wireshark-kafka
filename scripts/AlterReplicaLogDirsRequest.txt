@@ -1,0 +1,8 @@
+[log_dirs]
+  log_dirs => log_dir [topics]
+    log_dir => STRING
+    topics => topic [partitions]
+      topic => STRING
+      partitions => INT32
+
+

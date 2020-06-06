@@ -1,0 +1,11 @@
+[transaction_markers]
+  transaction_markers => producer_id producer_epoch transaction_result [topics] coordinator_epoch
+    producer_id => INT64
+    producer_epoch => INT16
+    transaction_result => BOOLEAN
+    topics => topic [partitions]
+      topic => STRING
+      partitions => INT32
+    coordinator_epoch => INT32
+
+

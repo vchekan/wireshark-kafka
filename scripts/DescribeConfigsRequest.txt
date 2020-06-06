@@ -1,0 +1,8 @@
+[resources] include_synonyms
+  resources => resource_type resource_name [config_names]
+    resource_type => INT8
+    resource_name => STRING
+    config_names => STRING
+  include_synonyms => BOOLEAN
+
+

@@ -1,0 +1,5 @@
+hmac renew_time_period
+  hmac => BYTES
+  renew_time_period => INT64
+
+

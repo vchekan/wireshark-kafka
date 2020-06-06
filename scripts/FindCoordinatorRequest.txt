@@ -1,0 +1,5 @@
+coordinator_key coordinator_type
+  coordinator_key => STRING
+  coordinator_type => INT8
+
+

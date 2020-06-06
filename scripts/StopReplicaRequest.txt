@@ -1,0 +1,10 @@
+controller_id controller_epoch broker_epoch delete_partitions [partitions]
+  controller_id => INT32
+  controller_epoch => INT32
+  broker_epoch => INT64
+  delete_partitions => BOOLEAN
+  partitions => topic [partition_ids]
+    topic => STRING
+    partition_ids => INT32
+
+

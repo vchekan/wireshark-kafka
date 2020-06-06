@@ -1,0 +1,11 @@
+transactional_id acks timeout [topic_data]
+  transactional_id => NULLABLE_STRING
+  acks => INT16
+  timeout => INT32
+  topic_data => topic [data]
+    topic => STRING
+    data => partition record_set
+      partition => INT32
+      record_set => RECORDS
+
+

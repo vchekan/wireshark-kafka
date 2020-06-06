@@ -1,0 +1,11 @@
+replica_id isolation_level [topics]
+  replica_id => INT32
+  isolation_level => INT8
+  topics => topic [partitions]
+    topic => STRING
+    partitions => partition current_leader_epoch timestamp
+      partition => INT32
+      current_leader_epoch => INT32
+      timestamp => INT64
+
+

@@ -1,0 +1,10 @@
+resource_type resource_name resource_pattern_type_filter principal host operation permission_type
+  resource_type => INT8
+  resource_name => NULLABLE_STRING
+  resource_pattern_type_filter => INT8
+  principal => NULLABLE_STRING
+  host => NULLABLE_STRING
+  operation => INT8
+  permission_type => INT8
+
+

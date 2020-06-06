@@ -1,0 +1,9 @@
+throttle_time_ms [topics]
+  throttle_time_ms => INT32
+  topics => topic [partitions]
+    topic => STRING
+    partitions => partition error_code
+      partition => INT32
+      error_code => INT16
+
+

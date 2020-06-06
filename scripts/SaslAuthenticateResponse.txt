@@ -1,0 +1,7 @@
+error_code error_message sasl_auth_bytes session_lifetime_ms
+  error_code => INT16
+  error_message => NULLABLE_STRING
+  sasl_auth_bytes => BYTES
+  session_lifetime_ms => INT64
+
+

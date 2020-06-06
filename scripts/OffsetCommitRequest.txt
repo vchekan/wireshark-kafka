@@ -1,0 +1,13 @@
+group_id generation_id member_id [topics]
+  group_id => STRING
+  generation_id => INT32
+  member_id => STRING
+  topics => topic [partitions]
+    topic => STRING
+    partitions => partition offset leader_epoch metadata
+      partition => INT32
+      offset => INT64
+      leader_epoch => INT32
+      metadata => NULLABLE_STRING
+
+

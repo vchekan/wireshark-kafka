@@ -1,0 +1,8 @@
+error_code [partitions]
+  error_code => INT16
+  partitions => topic partition error_code
+    topic => STRING
+    partition => INT32
+    error_code => INT16
+
+

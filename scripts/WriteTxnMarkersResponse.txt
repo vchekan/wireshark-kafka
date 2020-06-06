@@ -1,0 +1,10 @@
+[transaction_markers]
+  transaction_markers => producer_id [topics]
+    producer_id => INT64
+    topics => topic [partitions]
+      topic => STRING
+      partitions => partition error_code
+        partition => INT32
+        error_code => INT16
+
+

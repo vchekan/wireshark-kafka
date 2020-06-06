@@ -1,0 +1,8 @@
+group_id [topics]
+  group_id => STRING
+  topics => topic [partitions]
+    topic => STRING
+    partitions => partition
+      partition => INT32
+
+

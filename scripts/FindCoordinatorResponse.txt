@@ -1,0 +1,10 @@
+throttle_time_ms error_code error_message coordinator
+  throttle_time_ms => INT32
+  error_code => INT16
+  error_message => NULLABLE_STRING
+  coordinator => node_id host port
+    node_id => INT32
+    host => STRING
+    port => INT32
+
+

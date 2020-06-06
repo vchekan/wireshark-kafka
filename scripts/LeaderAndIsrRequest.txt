@@ -1,0 +1,21 @@
+controller_id controller_epoch broker_epoch [topic_states] [live_leaders]
+  controller_id => INT32
+  controller_epoch => INT32
+  broker_epoch => INT64
+  topic_states => topic [partition_states]
+    topic => STRING
+    partition_states => partition controller_epoch leader leader_epoch [isr] zk_version [replicas] is_new
+      partition => INT32
+      controller_epoch => INT32
+      leader => INT32
+      leader_epoch => INT32
+      isr => INT32
+      zk_version => INT32
+      replicas => INT32
+      is_new => BOOLEAN
+  live_leaders => id host port
+    id => INT32
+    host => STRING
+    port => INT32
+
+

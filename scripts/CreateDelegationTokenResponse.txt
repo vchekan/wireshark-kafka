@@ -1,0 +1,13 @@
+error_code owner issue_timestamp expiry_timestamp max_timestamp token_id hmac throttle_time_ms
+  error_code => INT16
+  owner => principal_type name
+    principal_type => STRING
+    name => STRING
+  issue_timestamp => INT64
+  expiry_timestamp => INT64
+  max_timestamp => INT64
+  token_id => STRING
+  hmac => BYTES
+  throttle_time_ms => INT32
+
+

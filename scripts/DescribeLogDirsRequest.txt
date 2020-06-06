@@ -1,0 +1,6 @@
+[topics]
+  topics => topic [partitions]
+    topic => STRING
+    partitions => INT32
+
+

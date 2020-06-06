@@ -1,0 +1,9 @@
+[topics] timeout
+  topics => topic [partitions]
+    topic => STRING
+    partitions => partition offset
+      partition => INT32
+      offset => INT64
+  timeout => INT32
+
+

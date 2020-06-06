@@ -1,0 +1,15 @@
+throttle_time_ms error_code error_message [resources]
+  throttle_time_ms => INT32
+  error_code => INT16
+  error_message => NULLABLE_STRING
+  resources => resource_type resource_name resource_pattten_type [acls]
+    resource_type => INT8
+    resource_name => STRING
+    resource_pattten_type => INT8
+    acls => principal host operation permission_type
+      principal => STRING
+      host => STRING
+      operation => INT8
+      permission_type => INT8
+
+

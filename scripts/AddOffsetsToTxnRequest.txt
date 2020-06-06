@@ -1,0 +1,7 @@
+transactional_id producer_id producer_epoch group_id
+  transactional_id => STRING
+  producer_id => INT64
+  producer_epoch => INT16
+  group_id => STRING
+
+

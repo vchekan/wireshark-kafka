@@ -1,0 +1,7 @@
+throttle_time_ms [group_error_codes]
+  throttle_time_ms => INT32
+  group_error_codes => group_id error_code
+    group_id => STRING
+    error_code => INT16
+
+

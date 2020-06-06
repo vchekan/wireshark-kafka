@@ -1,0 +1,6 @@
+error_code expiry_timestamp throttle_time_ms
+  error_code => INT16
+  expiry_timestamp => INT64
+  throttle_time_ms => INT32
+
+

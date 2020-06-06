@@ -1,0 +1,9 @@
+transactional_id producer_id producer_epoch [topics]
+  transactional_id => STRING
+  producer_id => INT64
+  producer_epoch => INT16
+  topics => topic [partitions]
+    topic => STRING
+    partitions => INT32
+
+

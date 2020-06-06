@@ -1,0 +1,10 @@
+[topic_partitions] timeout validate_only
+  topic_partitions => topic new_partitions
+    topic => STRING
+    new_partitions => count [assignment]
+      count => INT32
+      assignment => ARRAY(INT32)
+  timeout => INT32
+  validate_only => BOOLEAN
+
+

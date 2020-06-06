@@ -1,0 +1,6 @@
+group_id generation_id member_id
+  group_id => STRING
+  generation_id => INT32
+  member_id => STRING
+
+

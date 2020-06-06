@@ -1,0 +1,5 @@
+transactional_id transaction_timeout_ms
+  transactional_id => NULLABLE_STRING
+  transaction_timeout_ms => INT32
+
+

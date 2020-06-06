@@ -1,0 +1,9 @@
+throttle_time_ms [replica_election_results]
+  throttle_time_ms => INT32
+  replica_election_results => topic [partition_result]
+    topic => STRING
+    partition_result => partition_id error_code error_message
+      partition_id => INT32
+      error_code => INT16
+      error_message => NULLABLE_STRING
+

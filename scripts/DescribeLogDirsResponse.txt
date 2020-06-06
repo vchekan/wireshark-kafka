@@ -1,0 +1,14 @@
+throttle_time_ms [log_dirs]
+  throttle_time_ms => INT32
+  log_dirs => error_code log_dir [topics]
+    error_code => INT16
+    log_dir => STRING
+    topics => topic [partitions]
+      topic => STRING
+      partitions => partition size offset_lag is_future
+        partition => INT32
+        size => INT64
+        offset_lag => INT64
+        is_future => BOOLEAN
+
+

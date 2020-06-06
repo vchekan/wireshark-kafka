@@ -1,0 +1,5 @@
+broker_id broker_epoch
+  broker_id => INT32
+  broker_epoch => INT64
+
+

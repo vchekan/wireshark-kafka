@@ -1,0 +1,5 @@
+[topics] allow_auto_topic_creation
+  topics => STRING
+  allow_auto_topic_creation => BOOLEAN
+
+

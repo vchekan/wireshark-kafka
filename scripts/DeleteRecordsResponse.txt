@@ -1,0 +1,10 @@
+throttle_time_ms [topics]
+  throttle_time_ms => INT32
+  topics => topic [partitions]
+    topic => STRING
+    partitions => partition low_watermark error_code
+      partition => INT32
+      low_watermark => INT64
+      error_code => INT16
+
+
