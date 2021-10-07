@@ -4,7 +4,7 @@ use wireshark_ffi::bindings::*;
 use crate::dissects::*;
 use crate::utils::i8_str;
 use crate::fields::*;
-
+use std::ptr;
 
 //
 // Api Key 0: Produce

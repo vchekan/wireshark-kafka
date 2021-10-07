@@ -1,7 +1,8 @@
 use wireshark_ffi::bindings::*;
 use crate::fields::*;
 use crate::utils::i8_str;
-use std::os::raw::{c_char, c_int, c_uint, c_void};
+use std::os::raw::{c_int, c_uint, c_void};
+use std::ptr;
 use crate::protocol;
 use crate::plugin::PROTO_KAFKA;
 use crate::correlation_map::*;
@@ -287,7 +288,7 @@ pub(crate) fn dissect_kafka_string(
         offset += 2;
 
         if len == -1 {
-            proto_tree_add_string(tree, hf_item, tvb, offset-2, 2, 0 as *const c_char);
+            proto_tree_add_string(tree, hf_item, tvb, offset-2, 2, ptr::null());
         } else {
             let ti = proto_tree_add_item(tree, hf_item, tvb, offset, len as i32, ENC_NA | ENC_UTF_8);
             let subtree = proto_item_add_subtree(ti, ett);
@@ -312,7 +313,7 @@ pub(crate) fn dissect_bytes(
         offset += 4;
 
         if len == -1 {
-            proto_tree_add_item(tree, hf_item, tvb, offset, 0 as i32, ENC_NA);
+            proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         } else {
             let _ti = proto_tree_add_item(tree, hf_item, tvb, offset, len as i32, ENC_NA);
             offset += len;
@@ -361,7 +362,7 @@ pub(crate) fn dissect_record_batch(
 
                 proto_tree_add_bitmask(tree, tvb, offset as u32, hf_kafka_recordbatch_attributes,
                                    ETT_BATCH_ATTRIBUTES,
-                                   kafka_batch_attributes.as_mut_ptr(), ENC_BIG_ENDIAN);
+                                   kafka_batch_attributes.as_ptr() as *const *mut i32, ENC_BIG_ENDIAN);
                 offset += 2;
 
                 proto_tree_add_item(tree, hf_kafka_recordbatch_lastoffsetdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -382,7 +383,7 @@ pub(crate) fn dissect_record_batch(
                 proto_tree_add_item(tree, hf_kafka_recordbatch_base_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                let tree = proto_tree_add_subtree(tree, tvb, offset, -1, ETT_RECORDBATCH_RECORDS, 0 as *mut *mut _, i8_str("Records\0"));
+                let tree = proto_tree_add_subtree(tree, tvb, offset, -1, ETT_RECORDBATCH_RECORDS, ptr::null_mut::<*mut _>(), i8_str("Records\0"));
                 // TODO: compression
                 offset = dissect_kafka_array(tvb, pinfo, tree, offset, api_version, dissect_record);
 
@@ -414,7 +415,7 @@ fn dissect_message_set_v1(tree: *mut proto_tree, tvb: *mut tvbuff_t, _pinfo: *mu
 
             proto_tree_add_bitmask(tree, tvb, offset as u32, hf_kafka_messageset_attributes,
                                    ETT_BATCH_ATTRIBUTES,
-                                   kafka_messageset_attributes.as_mut_ptr(), ENC_BIG_ENDIAN);
+                                   kafka_messageset_attributes.as_ptr() as *const *mut i32, ENC_BIG_ENDIAN);
             offset += 1;
 
             proto_tree_add_item(tree, hf_kafka_recordbatch_timestamp, tvb, offset, 8, ENC_TIME_MSECS | ENC_BIG_ENDIAN);

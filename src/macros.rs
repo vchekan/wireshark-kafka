@@ -49,14 +49,14 @@ macro_rules! header_field_register {
                 abbrev: i8_str($abbrev),
                 type_: ftenum_FT_STRING,
                 display: field_display_e_BASE_NONE as i32,
-                strings: 0 as *const c_void,
+                strings: ptr::null::<c_void>(),
                 bitmask: 0,
                 blurb: _resolve_blurp!($blurb),
                 id: -1,
                 parent: 0,
                 ref_type: hf_ref_type_HF_REF_TYPE_NONE,
                 same_name_prev_id: -1,
-                same_name_next: 0 as *mut _header_field_info,
+                same_name_next: ptr::null_mut::<_header_field_info>(),
             }
         }
     };
@@ -77,7 +77,7 @@ macro_rules! header_field_register {
                 parent: 0,
                 ref_type: hf_ref_type_HF_REF_TYPE_NONE,
                 same_name_prev_id: -1,
-                same_name_next: 0 as *mut _header_field_info,
+                same_name_next: ptr::null_mut::<_header_field_info>(),
             }
         }
     };
@@ -147,7 +147,7 @@ macro_rules! dissect_field {
     // Array
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, [$t:ident $ett:ident]) => {
         $offset = {
-            let tree = unsafe {proto_tree_add_subtree($tree, $tvb, $offset, -1, $ett, 0 as *mut *mut _, i8_str(concat!(stringify!($f),"\0")))};
+            let tree = unsafe {proto_tree_add_subtree($tree, $tvb, $offset, -1, $ett, ptr::null_mut::<*mut _>(), i8_str(concat!(stringify!($f),"\0")))};
             dissect_kafka_array($tvb, $pinfo, tree, $offset, $api_version, $t::dissect)
         };
     };

@@ -2,6 +2,7 @@
 use wireshark_ffi::bindings::*;
 use crate::utils::i8_str;
 use std::os::raw::c_void;
+use std::ptr;
 use lazy_static::lazy_static;
 
 ett!(ETT_KAFKA, ett_broker_host, ETT_TOPICS, ETT_CLIENT_ID,
@@ -460,12 +461,12 @@ header_fields!(189;
             display: field_display_e_BASE_DEC as i32,
             strings: COMPRESSION_NAMES.as_ptr() as *const c_void,
             bitmask: 0b11,
-            blurb: 0 as *const i8,
+            blurb: ptr::null(),
             id: -1,
             parent: 0,
             ref_type: hf_ref_type_HF_REF_TYPE_NONE,
             same_name_prev_id: -1,
-            same_name_next: 0 as *mut _header_field_info,
+            same_name_next: ptr::null_mut(),
         }
     }},
     {hf_kafka_batch_timestamp_type {
@@ -477,12 +478,12 @@ header_fields!(189;
             display: field_display_e_BASE_DEC as i32,
             strings: TIMESTAMP_TYPE_NAMES.as_ptr() as *const c_void,
             bitmask: 0b100,
-            blurb: 0 as *const i8,
+            blurb: ptr::null(),
             id: -1,
             parent: 0,
             ref_type: hf_ref_type_HF_REF_TYPE_NONE,
             same_name_prev_id: -1,
-            same_name_next: 0 as *mut _header_field_info,
+            same_name_next: ptr::null_mut(),
         }
     }},
     {hf_kafka_batch_istransactional {
@@ -492,14 +493,14 @@ header_fields!(189;
             abbrev: i8_str("kafka.recordbatch.attributes.istransactional\0"),
             type_: ftenum_FT_INT16,
             display: field_display_e_BASE_DEC as i32,
-            strings: 0 as *const c_void,
+            strings: ptr::null(),
             bitmask: 0b1000,
-            blurb: 0 as *const i8,
+            blurb: ptr::null(),
             id: -1,
             parent: 0,
             ref_type: hf_ref_type_HF_REF_TYPE_NONE,
             same_name_prev_id: -1,
-            same_name_next: 0 as *mut _header_field_info,
+            same_name_next: ptr::null_mut(),
         }
     }},
     {hf_kafka_batch_iscontrolbatch {
@@ -509,14 +510,14 @@ header_fields!(189;
             abbrev: i8_str("kafka.recordbatch.attributes.iscontrolbatch\0"),
             type_: ftenum_FT_INT16,
             display: field_display_e_BASE_DEC as i32,
-            strings: 0 as *const c_void,
+            strings: ptr::null(),
             bitmask: 0b1_0000,
-            blurb: 0 as *const i8,
+            blurb: ptr::null(),
             id: -1,
             parent: 0,
             ref_type: hf_ref_type_HF_REF_TYPE_NONE,
             same_name_prev_id: -1,
-            same_name_next: 0 as *mut _header_field_info,
+            same_name_next: ptr::null_mut(),
         }
     }},
     // Message Set attributes (are u8 instead of u16)
@@ -529,12 +530,12 @@ header_fields!(189;
             display: field_display_e_BASE_DEC as i32,
             strings: COMPRESSION_NAMES.as_ptr() as *const c_void,
             bitmask: 0b11,
-            blurb: 0 as *const i8,
+            blurb: ptr::null(),
             id: -1,
             parent: 0,
             ref_type: hf_ref_type_HF_REF_TYPE_NONE,
             same_name_prev_id: -1,
-            same_name_next: 0 as *mut _header_field_info,
+            same_name_next: ptr::null_mut(),
         }
     }},
     {hf_kafka_messagest_timestamp_type {
@@ -546,12 +547,12 @@ header_fields!(189;
             display: field_display_e_BASE_DEC as i32,
             strings: TIMESTAMP_TYPE_NAMES.as_ptr() as *const c_void,
             bitmask: 0b100,
-            blurb: 0 as *const i8,
+            blurb: ptr::null(),
             id: -1,
             parent: 0,
             ref_type: hf_ref_type_HF_REF_TYPE_NONE,
             same_name_prev_id: -1,
-            same_name_next: 0 as *mut _header_field_info,
+            same_name_next: ptr::null_mut::<_header_field_info>(),
         }
     }}
 );
