@@ -669,7 +669,7 @@ lazy_static! {
         .collect();
 }
 
-pub(crate) static api_keys: [(u16, &'static str); 43] = [
+pub(crate) static api_keys: [(u16, &'static str); 44] = [
     (0, "Produce\0"),
     (1, "Fetch\0"),
     (2, "ListOffsets\0"),
@@ -713,6 +713,7 @@ pub(crate) static api_keys: [(u16, &'static str); 43] = [
     (40, "ExpireDelegationToken\0"),
     (41, "DescribeDelegationToken\0"),
     (42, "DeleteGroups\0"),
+    (43, "ElectLeaders\0"),
 ];
 
 pub(crate) static kafka_errors: [(i32, &'static str); 78] = [

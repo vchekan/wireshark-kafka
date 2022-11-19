@@ -4,6 +4,7 @@ macro_rules! header_fields {
         // Declare
         $(header_field_declare!($attrs);)*
         // Register
+        // pub(crate) static HF: [hf_register_info; 189] = [ $(header_field_register!($attrs),)* ];
         lazy_static! {
             pub(crate) static ref HF: Vec<hf_register_info> = vec![
                 $(header_field_register!($attrs),)*

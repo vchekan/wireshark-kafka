@@ -5,6 +5,7 @@
 ## Install
 Packages are planned, for now:
 ```
+sudo apt install libclang-dev clang wireshark-dev
 cargo build --release
 cp target/release/libkafka_plugin.so $HOME/.local/lib/wireshark/plugins/3.0/epan/
 ```

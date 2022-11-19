@@ -16,10 +16,10 @@ pub static plugin_want_major: i32 = 3;
 #[used]
 pub static plugin_want_minor: i32 = 2;
 
-/// Protocol handler. Registered with wireshark at runtime.
 pub(crate) const KAFKA_PORT: u32 = 9092;
 pub(crate) static mut PROTO_KAFKA: i32 = -1;
 
+/// Protocol handler. Registered with wireshark at runtime.
 static PLUGIN: proto_plugin = proto_plugin {
     register_protoinfo: Some(proto_register_kafka),
     register_handoff: Some(proto_reg_handoff_kafka),
