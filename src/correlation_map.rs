@@ -11,7 +11,6 @@
 
 use std::collections::HashMap;
 use std::os::raw::c_void;
-use std::ptr;
 use wireshark_ffi::bindings::*;
 use crate::dissects::Correlation;
 use crate::plugin::PROTO_KAFKA;

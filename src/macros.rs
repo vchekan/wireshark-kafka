@@ -31,7 +31,7 @@ macro_rules! header_field_declare {
 }
 
 macro_rules! _resolve_strings {
-    () => { 0 };
+    () => { std::ptr::null::<c_void>() };
     ($strings:ident) => {$strings.as_ptr()};
 }
 
@@ -65,7 +65,7 @@ macro_rules! header_field_register {
     // Ints
     ( { $hf:ident, $name:expr, $abbrev:expr, $type_:ident $(| $display:ident)?, $blurb:expr $(, $enum:ident)? } ) => {
         hf_register_info {
-            p_id: unsafe { std::mem::transmute(& $hf) },
+            p_id: unsafe { & $hf as *const i32 as *mut i32 },
             hfinfo: header_field_info {
                 name: i8_str($name),
                 abbrev: i8_str($abbrev),

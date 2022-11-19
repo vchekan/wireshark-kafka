@@ -669,7 +669,7 @@ lazy_static! {
         .collect();
 }
 
-pub(crate) static api_keys: [(u16, &'static str); 44] = [
+pub(crate) static api_keys: [(u16, &str); 44] = [
     (0, "Produce\0"),
     (1, "Fetch\0"),
     (2, "ListOffsets\0"),
@@ -716,7 +716,7 @@ pub(crate) static api_keys: [(u16, &'static str); 44] = [
     (43, "ElectLeaders\0"),
 ];
 
-pub(crate) static kafka_errors: [(i32, &'static str); 78] = [
+pub(crate) static kafka_errors: [(i32, &str); 78] = [
     (-1, "UNKNOWN_SERVER_ERROR\0"),
     (0, "NONE\0"),
     (1, "OFFSET_OUT_OF_RANGE\0"),
