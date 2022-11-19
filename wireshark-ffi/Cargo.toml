@@ -6,4 +6,4 @@ edition = "2018"
 description = "Wireshark ffi. Is used by `wireshark-kafka` project."
 
 [build-dependencies]
-bindgen = "0.48.0"
+bindgen = "0.*"
