@@ -3,12 +3,20 @@
 ![](doc/screenshot.png)
 
 ## Install
+Currently compiles for Wireshark-v3.6. Need to think how to compile for multiple versions.
 Packages are planned, for now:
 ```
 sudo apt install libclang-dev clang wireshark-dev
 cargo build --release
-cp target/release/libkafka_plugin.so $HOME/.local/lib/wireshark/plugins/3.0/epan/
+mkdir -p $HOME/.local/lib/wireshark/plugins/3.6/epan/
+cp target/release/libkafka_plugin.so $HOME/.local/lib/wireshark/plugins/3.6/epan/
 ```
+
+Make sure that `wireshark` have picked up the plugin.
+* Restart Wireshark
+* Go to Help/About Wireshark/Plugins
+* Search for `libkafka_plugin` name.
+* If nothing, check where your plugin dir is in Help/About Wireshark/Folders/Personal Plugins
 
 ## TODO
 - [ ] Compression decoding

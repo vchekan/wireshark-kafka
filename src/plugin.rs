@@ -14,7 +14,7 @@ pub static plugin_want_major: i32 = 3;
 
 #[no_mangle]
 #[used]
-pub static plugin_want_minor: i32 = 2;
+pub static plugin_want_minor: i32 = 6;
 
 pub(crate) const KAFKA_PORT: u32 = 9092;
 pub(crate) static mut PROTO_KAFKA: i32 = -1;
