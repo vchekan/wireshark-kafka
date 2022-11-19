@@ -4,7 +4,7 @@
 
 ## Install
 Currently compiles for Wireshark-v3.6. Need to think how to compile for multiple versions. If you are compiling for 
-different version, try editing [src/plugins.rs](src/plugins.rs) `plugin_want_major` and `plugin_want_minor`.
+different version, try editing [src/plugin.rs](src/plugin.rs) `plugin_want_major` and `plugin_want_minor`.
 Packages are planned, for now:
 ```
 sudo apt install libclang-dev clang wireshark-dev
