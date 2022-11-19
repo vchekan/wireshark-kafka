@@ -21,7 +21,7 @@ Make sure that `wireshark` have picked up the plugin.
 
 ## TODO
 - [ ] Compression decoding
-- [ ] Compile for wireshark-v2.x
+- [ ] Compile for multiple versions of Wireshark
 - [ ] Publish .dpg
 - [ ] Publish on Brew (Osx)
 
