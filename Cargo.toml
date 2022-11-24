@@ -17,4 +17,3 @@ panic = 'abort'
 
 [dependencies]
 wireshark_ffi = {path = "./wireshark-ffi"}
-lazy_static = "1.4.0"

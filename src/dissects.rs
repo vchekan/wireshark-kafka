@@ -1,7 +1,7 @@
 use wireshark_ffi::bindings::*;
 use crate::fields::*;
 use crate::utils::i8_str;
-use std::os::raw::{c_int, c_uint, c_void};
+use std::os::raw::{c_char, c_int, c_uint, c_void};
 use std::ptr;
 use crate::protocol;
 use crate::plugin::PROTO_KAFKA;
@@ -58,7 +58,7 @@ extern "C" fn dissect_kafka(
 
         let root_ti = proto_tree_add_item(tree, PROTO_KAFKA, tvb, 0, -1, ENC_NA);
         let kafka_tree = proto_item_add_subtree(root_ti, ETT_KAFKA);
-        proto_tree_add_item(kafka_tree, hf_kafka_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(kafka_tree, *hf_kafka_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         let is_request = (*pinfo).destport == (*pinfo).match_uint;
@@ -75,20 +75,20 @@ extern "C" fn dissect_kafka(
                 (*pinfo).cinfo,
                 COL_INFO as i32,
                 i8_str("Kafka %s v%d request\0"),
-                api_key_to_str(api_key).as_ptr(),
+                api_key_to_str(api_key),
                 api_version as c_uint,
             );
             // Add to proto root
             proto_item_append_text(
                 root_ti,
                 i8_str(" (%s v%d Request)\0"),
-                api_key_to_str(api_key).as_ptr(),
+                api_key_to_str(api_key),
                 api_version as c_uint,
             );
 
             let _ti = proto_tree_add_item(
                 kafka_tree,
-                hf_kafka_request_api_key,
+                *hf_kafka_request_api_key,
                 tvb,
                 offset,
                 2,
@@ -100,7 +100,7 @@ extern "C" fn dissect_kafka(
 
             proto_tree_add_item(
                 kafka_tree,
-                hf_kafka_request_api_version,
+                *hf_kafka_request_api_version,
                 tvb,
                 offset,
                 2,
@@ -111,7 +111,7 @@ extern "C" fn dissect_kafka(
 
             proto_tree_add_item(
                 kafka_tree,
-                hf_kafka_correlation_id,
+                *hf_kafka_correlation_id,
                 tvb,
                 offset,
                 4,
@@ -120,7 +120,7 @@ extern "C" fn dissect_kafka(
             offset += 4;
 
             // ClientId
-            offset = dissect_kafka_string(kafka_tree, hf_kafka_client_id, ETT_CLIENT_ID, tvb, pinfo, offset);
+            offset = dissect_kafka_string(kafka_tree, *hf_kafka_client_id, ETT_CLIENT_ID, tvb, pinfo, offset);
 
             match api_key {
                 0 => { protocol::ProduceRequest::dissect(tvb, pinfo, kafka_tree, offset, api_version); },
@@ -176,7 +176,7 @@ extern "C" fn dissect_kafka(
             let correlation_id = tvb_get_ntohl(tvb, offset) as i32;
             proto_tree_add_item(
                 kafka_tree,
-                hf_kafka_correlation_id,
+                *hf_kafka_correlation_id,
                 tvb,
                 offset,
                 4,
@@ -192,14 +192,14 @@ extern "C" fn dissect_kafka(
                         (*pinfo).cinfo,
                         COL_INFO as i32,
                         i8_str("Kafka %s v%d response\0"),
-                        api_key_to_str(correlation.api_key).as_ptr(),
+                        api_key_to_str(correlation.api_key),
                         correlation.api_version as c_uint,
                     );
                     // Add to proto root
                     proto_item_append_text(
                         root_ti,
                         i8_str(" (%s v%d Response)\0"),
-                        api_key_to_str(correlation.api_key).as_ptr(),
+                        api_key_to_str(correlation.api_key),
                         correlation.api_version as c_uint,
                     );
 
@@ -264,7 +264,7 @@ pub(crate) fn dissect_kafka_array(tvb: *mut tvbuff_t, pinfo: *mut packet_info, t
 ) -> i32 {
     unsafe {
         let count = tvb_get_ntohl(tvb, offset) as gint32;
-        proto_tree_add_item(tree, hf_kafka_array_count, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, *hf_kafka_array_count, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         if count != -1 {
             for _ in 0..count {
@@ -292,8 +292,8 @@ pub(crate) fn dissect_kafka_string(
         } else {
             let ti = proto_tree_add_item(tree, hf_item, tvb, offset, len as i32, ENC_NA | ENC_UTF_8);
             let subtree = proto_item_add_subtree(ti, ett);
-            proto_tree_add_item(subtree, hf_kafka_string_len, tvb, offset - 2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree, hf_kafka_string, tvb, offset, len as i32, ENC_NA | ENC_UTF_8);
+            proto_tree_add_item(subtree, *hf_kafka_string_len, tvb, offset - 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, *hf_kafka_string, tvb, offset, len as i32, ENC_NA | ENC_UTF_8);
             offset += len as i32;
         }
     }
@@ -334,7 +334,7 @@ pub(crate) fn dissect_record_batch(
     unsafe {
         // TODO: validate segment size boundaries
         let segment_size = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(tree, hf_kafka_recordbatch_segment_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, *hf_kafka_recordbatch_segment_size, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         if segment_size > 0 {
@@ -344,43 +344,43 @@ pub(crate) fn dissect_record_batch(
                 offset = dissect_message_set_v1(tree, tvb, pinfo, offset);
             }
             else if magic == 2 {
-                proto_tree_add_item(tree, hf_kafka_recordbatch_baseoffset, tvb, offset, 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_baseoffset, tvb, offset, 8, ENC_BIG_ENDIAN);
                 offset += 8;
 
-                proto_tree_add_item(tree, hf_kafka_recordbatch_batchlength, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_batchlength, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                proto_tree_add_item(tree, hf_kafka_recordbatch_partition_leader_epoch, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_partition_leader_epoch, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                proto_tree_add_item(tree, hf_kafka_recordbatch_magic, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_magic, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
                 // TODO: check crc and show error
-                proto_tree_add_item(tree, hf_kafka_recordbatch_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                proto_tree_add_bitmask(tree, tvb, offset as u32, hf_kafka_recordbatch_attributes,
+                proto_tree_add_bitmask(tree, tvb, offset as u32, *hf_kafka_recordbatch_attributes,
                                    ETT_BATCH_ATTRIBUTES,
                                    kafka_batch_attributes.as_ptr() as *const *mut i32, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                proto_tree_add_item(tree, hf_kafka_recordbatch_lastoffsetdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_lastoffsetdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                proto_tree_add_item(tree, hf_kafka_recordbatch_firsttimestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_firsttimestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
                 offset += 8;
 
-                proto_tree_add_item(tree, hf_kafka_recordbatch_maxtimestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_maxtimestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
                 offset += 8;
 
-                proto_tree_add_item(tree, hf_kafka_recordbatch_producer_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_producer_id, tvb, offset, 8, ENC_BIG_ENDIAN);
                 offset += 8;
 
-                proto_tree_add_item(tree, hf_kafka_recordbatch_producer_epoch, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_producer_epoch, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                proto_tree_add_item(tree, hf_kafka_recordbatch_base_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_base_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
                 let tree = proto_tree_add_subtree(tree, tvb, offset, -1, ETT_RECORDBATCH_RECORDS, ptr::null_mut::<*mut _>(), i8_str("Records\0"));
@@ -400,25 +400,25 @@ pub(crate) fn dissect_record_batch(
 fn dissect_message_set_v1(tree: *mut proto_tree, tvb: *mut tvbuff_t, _pinfo: *mut packet_info, mut offset: i32) -> i32 {
     unsafe {
         loop {
-            proto_tree_add_item(tree, hf_kafka_messageset_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, *hf_kafka_messageset_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
 
-            proto_tree_add_item(tree, hf_kafka_messageset_msg_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, *hf_kafka_messageset_msg_size, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             // TODO: check crc and show error
-            proto_tree_add_item(tree, hf_kafka_recordbatch_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, *hf_kafka_recordbatch_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_magic, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, *hf_kafka_recordbatch_magic, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_bitmask(tree, tvb, offset as u32, hf_kafka_messageset_attributes,
+            proto_tree_add_bitmask(tree, tvb, offset as u32, *hf_kafka_messageset_attributes,
                                    ETT_BATCH_ATTRIBUTES,
                                    kafka_messageset_attributes.as_ptr() as *const *mut i32, ENC_BIG_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_kafka_recordbatch_timestamp, tvb, offset, 8, ENC_TIME_MSECS | ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, *hf_kafka_recordbatch_timestamp, tvb, offset, 8, ENC_TIME_MSECS | ENC_BIG_ENDIAN);
             offset += 8;
 
             // Key
@@ -426,9 +426,9 @@ fn dissect_message_set_v1(tree: *mut proto_tree, tvb: *mut tvbuff_t, _pinfo: *mu
             let key_len = tvb_get_ntohl(tvb, offset) as i32;
             offset += 4;
             if key_len == -1 {
-                proto_tree_add_item(tree, hf_kafka_recordbatch_key, tvb, offset, 0, ENC_NA);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_key, tvb, offset, 0, ENC_NA);
             } else {
-                proto_tree_add_item(tree, hf_kafka_recordbatch_key, tvb, offset, key_len, ENC_NA);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_key, tvb, offset, key_len, ENC_NA);
                 offset += key_len;
             }
 
@@ -437,9 +437,9 @@ fn dissect_message_set_v1(tree: *mut proto_tree, tvb: *mut tvbuff_t, _pinfo: *mu
             let value_len = tvb_get_ntohl(tvb, offset) as i32;
             offset += 4;
             if value_len == -1 {
-                proto_tree_add_item(tree, hf_kafka_recordbatch_value, tvb, offset, 0, ENC_NA);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_value, tvb, offset, 0, ENC_NA);
             } else {
-                proto_tree_add_item(tree, hf_kafka_recordbatch_value, tvb, offset, value_len, ENC_NA);
+                proto_tree_add_item(tree, *hf_kafka_recordbatch_value, tvb, offset, value_len, ENC_NA);
                 offset += value_len;
             }
 
@@ -465,57 +465,57 @@ fn dissect_record(
     unsafe {
         // TODO: set tvb limit to the `len`
         let (len, varlen) = zigzag_i32(tvb, offset);
-        proto_tree_add_int(tree, hf_kafka_record_length, tvb, offset, varlen, len);
+        proto_tree_add_int(tree, *hf_kafka_record_length, tvb, offset, varlen, len);
         offset += varlen;
 
         // Attributes are unused as of v2.3.0
         let _attributes = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_kafka_record_attributes, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, *hf_kafka_record_attributes, tvb, offset, 1, ENC_NA);
         offset += 1;
 
         // The only zigzag 64 field
         let (timestamp_delta, varlen) = zigzag_i64(tvb, offset);
-        proto_tree_add_int64(tree, hf_kafka_record_timestamp_delta, tvb, offset, varlen, timestamp_delta);
+        proto_tree_add_int64(tree, *hf_kafka_record_timestamp_delta, tvb, offset, varlen, timestamp_delta);
         offset += varlen;
 
         let (offset_delta, varlen) = zigzag_i32(tvb, offset);
-        proto_tree_add_int(tree, hf_kafka_record_offset_delta, tvb, offset, varlen, offset_delta);
+        proto_tree_add_int(tree, *hf_kafka_record_offset_delta, tvb, offset, varlen, offset_delta);
         offset += varlen;
 
         let (key_len, varlen) = zigzag_i32(tvb, offset);
-        proto_tree_add_int(tree, hf_kafka_record_key_len, tvb, offset, varlen, key_len);
+        proto_tree_add_int(tree, *hf_kafka_record_key_len, tvb, offset, varlen, key_len);
         offset += varlen;
         if key_len > 0 {
-            proto_tree_add_item(tree, hf_kafka_message_set_record_key, tvb, offset, varlen, ENC_STR_HEX);
+            proto_tree_add_item(tree, *hf_kafka_message_set_record_key, tvb, offset, varlen, ENC_STR_HEX);
             offset += key_len;
         }
 
         let (val_len, varlen) = zigzag_i32(tvb, offset);
-        proto_tree_add_int(tree, hf_kafka_record_value_len, tvb, offset, varlen, val_len);
+        proto_tree_add_int(tree, *hf_kafka_record_value_len, tvb, offset, varlen, val_len);
         offset += varlen;
         if val_len > 0 {
-            proto_tree_add_item(tree, hf_kafka_message_set_record_value, tvb, offset, val_len, ENC_STR_HEX);
+            proto_tree_add_item(tree, *hf_kafka_message_set_record_value, tvb, offset, val_len, ENC_STR_HEX);
             offset += val_len;
         }
 
         let (header_count, varlen) = zigzag_i32(tvb, offset);
-        proto_tree_add_int(tree, hf_kafka_record_header_count, tvb, offset, varlen, header_count);
+        proto_tree_add_int(tree, *hf_kafka_record_header_count, tvb, offset, varlen, header_count);
         offset += varlen;
         if header_count > 0 {
             for _ in 0..header_count {
                 let (key_len, varlen) = zigzag_i32(tvb, offset);
-                proto_tree_add_int(tree, hf_kafka_recordbatch_header_key_len, tvb, offset, varlen, key_len);
+                proto_tree_add_int(tree, *hf_kafka_recordbatch_header_key_len, tvb, offset, varlen, key_len);
                 offset += varlen;
                 if key_len > 0 {
-                    proto_tree_add_item(tree, hf_kafka_recordbatch_header_key, tvb, offset, varlen, ENC_STR_HEX);
+                    proto_tree_add_item(tree, *hf_kafka_recordbatch_header_key, tvb, offset, varlen, ENC_STR_HEX);
                     offset += key_len;
                 }
 
                 let (val_len, varlen) = zigzag_i32(tvb, offset);
-                proto_tree_add_int(tree, hf_kafka_recordbatch_header_value_len, tvb, offset, varlen, val_len);
+                proto_tree_add_int(tree, *hf_kafka_recordbatch_header_value_len, tvb, offset, varlen, val_len);
                 offset += varlen;
                 if val_len > 0 {
-                    proto_tree_add_item(tree, hf_kafka_recordbatch_header_value, tvb, offset, val_len, ENC_STR_HEX);
+                    proto_tree_add_item(tree, *hf_kafka_recordbatch_header_value, tvb, offset, val_len, ENC_STR_HEX);
                     offset += val_len;
                 }
             }
@@ -567,11 +567,11 @@ fn zigzag_i64(tvb: *mut tvbuff_t, start: i32) -> (i64, i32) {
     }
 }
 
-fn api_key_to_str(api_key: u16) -> &'static str {
+fn api_key_to_str(api_key: u16) -> *const c_char {
     if (api_key as usize) < api_keys.len() {
-        api_keys[api_key as usize].1
+        api_keys[api_key as usize].strptr
     } else {
-        "???"
+        i8_str("???")
     }
 }
 

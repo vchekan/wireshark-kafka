@@ -6,3 +6,4 @@ mod plugin;
 mod utils;
 mod protocol;
 mod correlation_map;
+mod api_initialized;

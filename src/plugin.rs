@@ -1,3 +1,4 @@
+use std::os::raw::c_int;
 /// Main wireshark entry
 use wireshark_ffi::bindings::*;
 use crate::dissects::dissect_kafka_tcp;
@@ -41,12 +42,12 @@ extern "C" fn proto_register_kafka() {
         );
 
         // Register fields
-        let hf_unsafe = std::mem::transmute(HF.as_ptr());
-        proto_register_field_array(PROTO_KAFKA, hf_unsafe, HF.len() as i32);
+        let hf_unsafe = HF.as_ptr() as *mut hf_register_info;
+        proto_register_field_array(PROTO_KAFKA, hf_unsafe, HF.len() as c_int);
 
         // Register ett
         let ett = create_ett();
-        proto_register_subtree_array(ett.as_ptr(), ett.len() as i32);
+        proto_register_subtree_array(ett.as_ptr(), ett.len() as c_int);
     }
 }
 
@@ -56,4 +57,3 @@ extern "C" fn proto_reg_handoff_kafka() {
         dissector_add_uint(i8_str("tcp.port\0"), KAFKA_PORT, kafka_handle);
     }
 }
-

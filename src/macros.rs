@@ -4,35 +4,30 @@ macro_rules! header_fields {
         // Declare
         $(header_field_declare!($attrs);)*
         // Register
-        // pub(crate) static HF: [hf_register_info; 189] = [ $(header_field_register!($attrs),)* ];
-        lazy_static! {
-            pub(crate) static ref HF: Vec<hf_register_info> = vec![
-                $(header_field_register!($attrs),)*
-            ];
-        }
+        pub(crate) static mut HF: [hf_register_info; 189] = [ $(header_field_register!($attrs),)* ];
     };
 }
 
 macro_rules! header_field_declare {
     // String
     ( { $hf:ident, $name:tt, $abbrev:tt, $blurb:tt } ) => {
-        pub(crate) static mut $hf: i32 = -1;
+        pub(crate) static mut $hf: ApiInitialized<i32> = ApiInitialized::new(-1);
     };
 
     // Ints
     ( { $hf:ident, $name:expr, $abbrev:expr, $type_:ident $(|$display:ident)?, $blurb:expr $(, $enum:ident)? } ) => {
-        pub(crate) static mut $hf: i32 = -1;
+        pub(crate) static mut $hf: ApiInitialized<i32> = ApiInitialized::new(-1);
     };
 
     // Raw field declaration
     ( { $hf:ident $decl:tt} ) => {
-        pub(crate) static mut $hf: i32 = -1;
+        pub(crate) static mut $hf: ApiInitialized<i32> = ApiInitialized::new(-1);
     };
 }
 
 macro_rules! _resolve_strings {
     () => { std::ptr::null::<c_void>() };
-    ($strings:ident) => {$strings.as_ptr()};
+    ($strings:ident) => {$strings.as_ptr() as *const c_void};
 }
 
 macro_rules! _resolve_display {
@@ -44,7 +39,7 @@ macro_rules! header_field_register {
     // String
     ( { $hf:ident, $name:tt, $abbrev:tt, $blurb:expr } ) => {
         hf_register_info {
-            p_id: unsafe { &mut $hf as *mut _ },
+            p_id: unsafe { $hf.ptr_for_api_init() },
             hfinfo: header_field_info {
                 name: i8_str($name),
                 abbrev: i8_str($abbrev),
@@ -65,13 +60,13 @@ macro_rules! header_field_register {
     // Ints
     ( { $hf:ident, $name:expr, $abbrev:expr, $type_:ident $(| $display:ident)?, $blurb:expr $(, $enum:ident)? } ) => {
         hf_register_info {
-            p_id: unsafe { & $hf as *const i32 as *mut i32 },
+            p_id: unsafe { $hf.ptr_for_api_init() },
             hfinfo: header_field_info {
                 name: i8_str($name),
                 abbrev: i8_str($abbrev),
                 type_: $type_,
                 display: _resolve_display!($($display)?),
-                strings: _resolve_strings!($($enum)?) as *const c_void,
+                strings: _resolve_strings!($($enum)?),
                 bitmask: 0,
                 blurb: _resolve_blurp!($blurb),
                 id: -1,
@@ -111,38 +106,38 @@ macro_rules! ett {
 macro_rules! dissect_field {
     // i32
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, { $hf:ident : i32 }) => {
-        unsafe {proto_tree_add_item($tree, $hf, $tvb, $offset, 4, ENC_BIG_ENDIAN);}
+        unsafe {proto_tree_add_item($tree, *$hf, $tvb, $offset, 4, ENC_BIG_ENDIAN);}
         $offset += 4;
     };
 
     // i64
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, { $hf:ident : i64 }) => {
-        unsafe {proto_tree_add_item($tree, $hf, $tvb, $offset, 8, ENC_BIG_ENDIAN);}
+        unsafe {proto_tree_add_item($tree, *$hf, $tvb, $offset, 8, ENC_BIG_ENDIAN);}
         $offset += 8;
     };
 
     // i16
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, { $hf:ident : i16 }) => {
-        unsafe {proto_tree_add_item($tree, $hf, $tvb, $offset, 2, ENC_BIG_ENDIAN);}
+        unsafe {proto_tree_add_item($tree, *$hf, $tvb, $offset, 2, ENC_BIG_ENDIAN);}
         $offset += 2;
     };
 
     // u8
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, { $hf:ident : u8 }) => {
-        unsafe {proto_tree_add_item($tree, $hf, $tvb, $offset, 1, ENC_NA);}
+        unsafe {proto_tree_add_item($tree, *$hf, $tvb, $offset, 1, ENC_NA);}
         $offset += 1;
     };
 
 
     // Bool
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, { $hf:ident : bool }) => {
-        unsafe {proto_tree_add_item($tree, $hf, $tvb, $offset, 1, ENC_NA);}
+        unsafe {proto_tree_add_item($tree, *$hf, $tvb, $offset, 1, ENC_NA);}
         $offset += 1;
     };
 
     // String
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, { $hf:ident : String, $ett:ident }) => {
-        unsafe{ $offset = dissect_kafka_string($tree, $hf, $ett, $tvb, $pinfo, $offset); }
+        unsafe{ $offset = dissect_kafka_string($tree, *$hf, $ett, $tvb, $pinfo, $offset); }
     };
 
     // Array
@@ -160,7 +155,7 @@ macro_rules! dissect_field {
 
     // Function call with one argument
     ($tree:ident, $tvb:ident, $pinfo:ident, $offset:ident, $api_version:ident, $f:ident, { $_fn:ident($arg:ident) }) => {
-        unsafe { $_fn($arg, $tree, $tvb, $pinfo, $offset); }
+        unsafe { $_fn(*$arg, $tree, $tvb, $pinfo, $offset); }
     };
 
 }
